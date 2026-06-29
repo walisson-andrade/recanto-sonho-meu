@@ -50,7 +50,7 @@ select:invalid {
 
 dialog, [role="dialog"],
 .fixed.inset-0 {
-  & input, & select, & textarea {
+  & input:not([type="checkbox"]):not([type="radio"]), & select, & textarea {
     appearance: none;
     -webkit-appearance: none;
     background-color: white;
@@ -63,7 +63,7 @@ dialog, [role="dialog"],
     box-sizing: border-box;
   }
 
-  & input:focus, & select:focus, & textarea:focus {
+  & input:not([type="checkbox"]):not([type="radio"]):focus, & select:focus, & textarea:focus {
     outline: 2px solid #1B5E20;
     outline-offset: -1px;
     border-color: #1B5E20;

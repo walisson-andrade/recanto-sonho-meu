@@ -40,6 +40,7 @@
 
 <script>
   import { db } from '../../lib/supabase.js'
+  import { esc } from '../../lib/helpers.js'
 
   async function carregarContato() {
     try {
@@ -48,7 +49,7 @@
       container.innerHTML = `
         <div class="flex items-start gap-2">
           <span class="mt-0.5">📍</span>
-          <span>${config.endereco || 'Uberlândia, MG'}</span>
+          <span>${esc(config.endereco) || 'Uberlândia, MG'}</span>
         </div>
       `
 

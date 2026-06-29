@@ -62,8 +62,8 @@
       document.getElementById('loc-maps-btn').href = config.maps_url || '#'
 
       const container = document.getElementById('mapa-container')
-      if (config.maps_embed) {
-        container.innerHTML = `<iframe src="${config.maps_embed}" class="w-full h-full" style="border:0" allowfullscreen loading="lazy" referrerpolicy="no-referrer-when-downgrade"></iframe>`
+      if (config.maps_embed && config.maps_embed.startsWith('https://')) {
+        container.innerHTML = `<iframe src="${encodeURI(config.maps_embed)}" class="w-full h-full" style="border:0" allowfullscreen loading="lazy" referrerpolicy="no-referrer-when-downgrade"></iframe>`
       } else if (config.maps_url) {
         container.innerHTML = `
           <a href="${config.maps_url}" target="_blank" rel="noopener" class="w-full h-full flex flex-col items-center justify-center text-verde hover:text-verde-claro transition-colors">

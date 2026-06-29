@@ -62,7 +62,6 @@
   import { db } from '../../lib/supabase.js'
   import { formatarDataExtenso } from '../../lib/helpers.js'
 
-  // Pill dinâmica — próxima data disponível
   async function carregarProximaData() {
     try {
       const reservas = await db.reservas.listar()

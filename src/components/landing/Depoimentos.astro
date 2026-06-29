@@ -47,7 +47,7 @@
 
 <script>
   import { db } from '../../lib/supabase.js'
-  import { gerarIniciais } from '../../lib/helpers.js'
+  import { gerarIniciais, esc } from '../../lib/helpers.js'
 
   let depoimentos = []
   let currentSlide = 0
@@ -79,11 +79,11 @@
               ${gerarIniciais(d.nome)}
             </div>
             <div class="text-left">
-              <div class="font-semibold text-verde">${d.nome}</div>
-              ${d.tipo_evento ? `<div class="text-xs text-gray-500">${d.tipo_evento}</div>` : ''}
+              <div class="font-semibold text-verde">${esc(d.nome)}</div>
+              ${d.tipo_evento ? `<div class="text-xs text-gray-500">${esc(d.tipo_evento)}</div>` : ''}
             </div>
           </div>
-          <p class="text-gray-600 italic leading-relaxed mb-4">"${d.texto}"</p>
+          <p class="text-gray-600 italic leading-relaxed mb-4">"${esc(d.texto)}"</p>
           <div class="text-dourado">${'★'.repeat(d.avaliacao)}${'☆'.repeat(5 - d.avaliacao)}</div>
         </div>
       </div>

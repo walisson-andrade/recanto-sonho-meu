@@ -1,0 +1,12 @@
+{
+  "projects": {
+    "default": "recanto-sonho-meu-82d3e"
+  },
+  "targets": {
+    "recanto-sonho-meu-82d3e": {
+      "hosting": {
+        "site": ["recantosonhomeu"]
+      }
+    }
+  }
+}

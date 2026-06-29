@@ -45,6 +45,7 @@
 
 <script>
   import { db } from '../../lib/supabase.js'
+  import { esc } from '../../lib/helpers.js'
 
   let fotos = []
   let filteredFotos = []
@@ -76,10 +77,10 @@
     grid.innerHTML = filteredFotos.map((f, i) => `
       <div class="break-inside-avoid mb-4 cursor-pointer group" onclick="window.openLightbox(${i})">
         <div class="relative overflow-hidden rounded-xl">
-          <img src="${f.url}" alt="${f.legenda || 'Foto do espaço'}" loading="lazy"
+          <img src="${esc(f.url)}" alt="${esc(f.legenda) || 'Foto do espaço'}" loading="lazy"
             class="w-full object-cover group-hover:scale-105 transition-transform duration-300" />
           ${f.legenda ? `<div class="absolute bottom-0 left-0 right-0 bg-gradient-to-t from-black/60 to-transparent p-3">
-            <p class="text-white text-sm">${f.legenda}</p>
+            <p class="text-white text-sm">${esc(f.legenda)}</p>
           </div>` : ''}
         </div>
       </div>

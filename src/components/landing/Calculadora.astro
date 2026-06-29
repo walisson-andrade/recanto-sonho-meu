@@ -131,7 +131,7 @@
 
 <script>
   import { db } from '../../lib/supabase.js'
-  import { formatarPreco, calcularPrecoData, nomeMes, dataParaISO, gerarUrlWhatsApp, diaSemana, formatarDataExtenso } from '../../lib/helpers.js'
+  import { formatarPreco, calcularPrecoData, nomeMes, dataParaISO, gerarUrlWhatsApp, diaSemana, formatarDataExtenso, esc } from '../../lib/helpers.js'
 
   let precosSemana = []
   let datasEspeciais = []
@@ -163,9 +163,9 @@
       const regrasRaw = config.regras_espaco || 'Proibido som automotivo'
       const regrasArr = typeof regrasRaw === 'string' ? regrasRaw.split(';;').filter(r => r.trim()) : (Array.isArray(regrasRaw) ? regrasRaw : [regrasRaw])
       regrasEl.innerHTML = `
-        <p><strong>⏰ Horário da diária:</strong> ${horario}</p>
+        <p><strong>⏰ Horário da diária:</strong> ${esc(horario)}</p>
         <p><strong>📋 Regras:</strong></p>
-        <ul class="list-disc list-inside">${regrasArr.map(r => `<li>${r}</li>`).join('')}</ul>
+        <ul class="list-disc list-inside">${regrasArr.map(r => `<li>${esc(r)}</li>`).join('')}</ul>
       `
     }
 

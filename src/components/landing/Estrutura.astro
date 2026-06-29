@@ -20,6 +20,7 @@
 
 <script>
   import { db } from '../../lib/supabase.js'
+  import { esc } from '../../lib/helpers.js'
 
   async function carregarEstrutura() {
     const grid = document.getElementById('estrutura-grid')
@@ -31,9 +32,9 @@
       }
       grid.innerHTML = itens.map(item => `
         <div class="bg-white/10 backdrop-blur-sm rounded-xl p-4 text-center border border-white/10">
-          <div class="text-3xl mb-2">${item.icone}</div>
-          <div class="text-2xl font-bold text-champagne">${item.quantidade}</div>
-          <div class="text-sm text-white/80">${item.item}</div>
+          <div class="text-3xl mb-2">${esc(item.icone)}</div>
+          <div class="text-2xl font-bold text-champagne">${esc(item.quantidade)}</div>
+          <div class="text-sm text-white/80">${esc(item.item)}</div>
         </div>
       `).join('')
     } catch {

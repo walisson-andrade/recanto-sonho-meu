@@ -69,7 +69,7 @@
 
 <script>
   import { db } from '../../lib/supabase.js'
-  import { nomeMes, dataParaISO, calcularPrecoData, formatarPreco, formatarDataExtenso, gerarUrlWhatsApp, diaSemana } from '../../lib/helpers.js'
+  import { nomeMes, dataParaISO, calcularPrecoData, formatarPreco, formatarDataExtenso, gerarUrlWhatsApp, diaSemana, esc } from '../../lib/helpers.js'
 
   let precosSemana = []
   let datasEspeciais = []
@@ -120,7 +120,7 @@
       } else if (reservado) {
         classes += 'bg-red-50 text-red-400 cursor-default'
         if (isHoje) classes += ' ring-2 ring-dourado'
-        html += `<div class="${classes}" title="${datasReservadas.get(iso)}">
+        html += `<div class="${classes}" title="${esc(datasReservadas.get(iso))}">
           <div class="line-through">${d}</div>
         </div>`
         continue

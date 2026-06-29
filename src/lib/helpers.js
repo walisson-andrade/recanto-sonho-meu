@@ -75,4 +75,9 @@ export function dataParaISO(date) {
   return `${y}-${m}-${d}`
 }
 
+export function esc(str) {
+  if (!str) return ''
+  return String(str).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;').replace(/'/g,'&#39;')
+}
+
 export { DIAS_SEMANA, DIAS_CURTOS, MESES }

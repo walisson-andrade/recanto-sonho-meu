@@ -26,6 +26,7 @@
 
 <script>
   import { db } from '../../lib/supabase.js'
+  import { esc } from '../../lib/helpers.js'
 
   async function init() {
     let perguntas = []
@@ -44,13 +45,13 @@
     container.innerHTML = perguntas.map((faq, i) => `
       <details class="group bg-white rounded-xl border border-gray-100 overflow-hidden">
         <summary class="flex items-center justify-between p-4 cursor-pointer hover:bg-gray-50 transition-colors">
-          <span class="font-medium text-verde text-left">${faq.pergunta}</span>
+          <span class="font-medium text-verde text-left">${esc(faq.pergunta)}</span>
           <svg class="w-5 h-5 text-gray-400 group-open:rotate-180 transition-transform flex-shrink-0 ml-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"/>
           </svg>
         </summary>
         <div class="px-4 pb-4 text-gray-600 text-sm leading-relaxed border-t border-gray-50 pt-3">
-          ${faq.resposta}
+          ${esc(faq.resposta)}
         </div>
       </details>
     `).join('')

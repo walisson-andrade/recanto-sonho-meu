@@ -4,7 +4,7 @@ import tailwindcss from '@tailwindcss/vite'
 
 export default defineConfig({
   output: 'static',
-  site: 'https://walisson-andrade.github.io/recanto-sonho-meu.github.io',
+  site: 'https://recantosonhomeu.web.app',
   integrations: [sitemap()],
   server: {
     host: '0.0.0.0',

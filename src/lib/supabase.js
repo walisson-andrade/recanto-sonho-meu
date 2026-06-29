@@ -227,9 +227,8 @@ export const db = {
       return data
     },
     async adicionar(lead) {
-      const { data, error } = await supabase.from('leads').insert(lead).select().single()
+      const { error } = await supabase.from('leads').insert(lead)
       if (error) throw error
-      return data
     },
     async remover(id) {
       const { error } = await supabase.from('leads').delete().eq('id', id)
