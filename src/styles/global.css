@@ -1,0 +1,109 @@
+@import "tailwindcss";
+
+@theme {
+  --color-champagne: #F5E6C8;
+  --color-dourado: #D4A017;
+  --color-dourado-escuro: #B8860B;
+  --color-verde: #1B5E20;
+  --color-verde-claro: #388E3C;
+  --color-creme: #FAFAF5;
+  --color-rosa: #F2C4CE;
+
+  --font-display: 'Playfair Display', serif;
+  --font-body: 'Inter', sans-serif;
+}
+
+html {
+  scroll-behavior: smooth;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  html {
+    scroll-behavior: auto;
+  }
+}
+
+body {
+  font-family: var(--font-body);
+  color: #1a1a1a;
+  background-color: var(--color-creme);
+}
+
+h1, h2, h3, h4, h5, h6 {
+  font-family: var(--font-display);
+}
+
+a {
+  text-decoration: none !important;
+}
+
+input, select, textarea {
+  box-sizing: border-box;
+  max-width: 100%;
+}
+
+input:invalid,
+textarea:invalid,
+select:invalid {
+  box-shadow: none;
+}
+
+dialog, [role="dialog"],
+.fixed.inset-0 {
+  & input, & select, & textarea {
+    appearance: none;
+    -webkit-appearance: none;
+    background-color: white;
+    border: 1px solid #d1d5db;
+    border-radius: 0.5rem;
+    padding: 0.5rem 0.75rem;
+    font-size: 0.875rem;
+    line-height: 1.25rem;
+    width: 100%;
+    box-sizing: border-box;
+  }
+
+  & input:focus, & select:focus, & textarea:focus {
+    outline: 2px solid #1B5E20;
+    outline-offset: -1px;
+    border-color: #1B5E20;
+  }
+}
+
+.skeleton {
+  background: linear-gradient(90deg, #e0e0e0 25%, #f0f0f0 50%, #e0e0e0 75%);
+  background-size: 200% 100%;
+  animation: skeleton-pulse 1.5s ease-in-out infinite;
+  border-radius: 0.5rem;
+}
+
+@keyframes skeleton-pulse {
+  0% { background-position: 200% 0; }
+  100% { background-position: -200% 0; }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .skeleton {
+    animation: none;
+    background: #e0e0e0;
+  }
+}
+
+.fade-in {
+  opacity: 0;
+  transform: translateY(20px);
+  transition: opacity 0.6s ease, transform 0.6s ease;
+}
+
+.fade-in.visible {
+  opacity: 1;
+  transform: translateY(0);
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .fade-in {
+    opacity: 1;
+    transform: none;
+    transition: none;
+  }
+}

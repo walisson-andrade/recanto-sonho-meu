@@ -1,0 +1,152 @@
+<div class="admin-tab-panel hidden" data-tab="depoimentos">
+  <div class="flex items-center justify-between mb-6">
+    <h2 class="text-2xl font-bold text-verde">💬 Depoimentos</h2>
+    <button id="add-depoimento-btn" class="bg-verde text-white px-4 py-2 rounded-lg text-sm font-semibold hover:bg-verde-claro">
+      + Adicionar
+    </button>
+  </div>
+
+  <div class="bg-white rounded-xl shadow-sm border border-gray-100 overflow-hidden">
+    <div class="overflow-x-auto">
+      <table class="w-full text-sm">
+        <thead class="bg-gray-50 text-left">
+          <tr>
+            <th class="px-4 py-3 font-medium text-gray-500">Nome</th>
+            <th class="px-4 py-3 font-medium text-gray-500">Tipo</th>
+            <th class="px-4 py-3 font-medium text-gray-500">Texto</th>
+            <th class="px-4 py-3 font-medium text-gray-500">Nota</th>
+            <th class="px-4 py-3 font-medium text-gray-500">Aprovado</th>
+            <th class="px-4 py-3 font-medium text-gray-500">Ações</th>
+          </tr>
+        </thead>
+        <tbody id="depoimentos-tbody">
+          <tr><td colspan="6" class="px-4 py-8 text-center text-gray-400">Carregando...</td></tr>
+        </tbody>
+      </table>
+    </div>
+  </div>
+
+  <!-- Modal -->
+  <div id="modal-depoimento" class="fixed inset-0 z-50 flex items-center justify-center bg-black/50 hidden">
+    <div class="bg-white rounded-2xl p-6 max-w-md w-full mx-4 shadow-2xl">
+      <h3 class="font-display text-xl font-bold text-verde mb-4">Novo Depoimento</h3>
+      <form id="form-depoimento" class="space-y-4">
+        <div class="grid grid-cols-2 gap-4">
+          <div>
+            <label class="block text-sm font-medium text-gray-700 mb-1">Nome *</label>
+            <input type="text" id="dep-nome" required class="w-full min-w-0 px-3 py-2 border rounded-lg box-border" />
+          </div>
+          <div>
+            <label class="block text-sm font-medium text-gray-700 mb-1">Tipo de evento</label>
+            <input type="text" id="dep-tipo" class="w-full min-w-0 px-3 py-2 border rounded-lg box-border" />
+          </div>
+        </div>
+        <div>
+          <label class="block text-sm font-medium text-gray-700 mb-1">Texto *</label>
+          <textarea id="dep-texto" required rows="3" class="w-full px-3 py-2 border rounded-lg resize-none"></textarea>
+        </div>
+        <div>
+          <label class="block text-sm font-medium text-gray-700 mb-1">Avaliação</label>
+          <select id="dep-avaliacao" class="w-full min-w-0 px-3 py-2 border rounded-lg box-border">
+            <option value="5">★★★★★ (5)</option>
+            <option value="4">★★★★☆ (4)</option>
+            <option value="3">★★★☆☆ (3)</option>
+            <option value="2">★★☆☆☆ (2)</option>
+            <option value="1">★☆☆☆☆ (1)</option>
+          </select>
+        </div>
+        <label class="flex items-center gap-2">
+          <input type="checkbox" id="dep-aprovado" class="accent-verde" checked />
+          <span class="text-sm text-gray-600">Aprovado (visível na landing page)</span>
+        </label>
+        <div class="flex gap-3 pt-2">
+          <button type="button" id="modal-dep-cancel" class="flex-1 py-2 rounded-lg border border-gray-300 hover:bg-gray-50">Cancelar</button>
+          <button type="submit" class="flex-1 py-2 rounded-lg bg-verde text-white font-semibold hover:bg-verde-claro">Salvar</button>
+        </div>
+      </form>
+    </div>
+  </div>
+</div>
+
+<script>
+  import { db } from '../../lib/supabase.js'
+
+  let depoimentos = []
+
+  async function loadDepoimentos() {
+    try {
+      depoimentos = await db.depoimentos.listar()
+    } catch { depoimentos = [] }
+    renderDepoimentos()
+  }
+
+  function renderDepoimentos() {
+    const tbody = document.getElementById('depoimentos-tbody')
+    if (depoimentos.length === 0) {
+      tbody.innerHTML = '<tr><td colspan="6" class="px-4 py-8 text-center text-gray-400">Nenhum depoimento.</td></tr>'
+      return
+    }
+    tbody.innerHTML = depoimentos.map(d => `
+      <tr class="border-t border-gray-50 hover:bg-gray-50">
+        <td class="px-4 py-3 font-medium">${d.nome}</td>
+        <td class="px-4 py-3 text-xs text-gray-500">${d.tipo_evento || '—'}</td>
+        <td class="px-4 py-3 text-xs text-gray-600 max-w-xs truncate">${d.texto}</td>
+        <td class="px-4 py-3 text-dourado">${'★'.repeat(d.avaliacao)}</td>
+        <td class="px-4 py-3">
+          <button onclick="window.toggleDepoimento('${d.id}', ${!d.aprovado})"
+            class="px-2 py-1 rounded text-xs font-medium ${d.aprovado ? 'bg-green-100 text-green-700' : 'bg-gray-100 text-gray-500'}">
+            ${d.aprovado ? 'Sim' : 'Não'}
+          </button>
+        </td>
+        <td class="px-4 py-3">
+          <button onclick="window.removerDepoimento('${d.id}')" class="p-1 hover:bg-red-50 rounded text-red-500">🗑️</button>
+        </td>
+      </tr>
+    `).join('')
+  }
+
+  document.getElementById('add-depoimento-btn').addEventListener('click', () => {
+    document.getElementById('form-depoimento').reset()
+    document.getElementById('dep-aprovado').checked = true
+    document.getElementById('modal-depoimento').classList.remove('hidden')
+  })
+
+  document.getElementById('modal-dep-cancel').addEventListener('click', () => {
+    document.getElementById('modal-depoimento').classList.add('hidden')
+  })
+
+  document.getElementById('form-depoimento').addEventListener('submit', async (e) => {
+    e.preventDefault()
+    try {
+      await db.depoimentos.adicionar({
+        nome: document.getElementById('dep-nome').value,
+        tipo_evento: document.getElementById('dep-tipo').value || null,
+        texto: document.getElementById('dep-texto').value,
+        avaliacao: Number(document.getElementById('dep-avaliacao').value),
+        aprovado: document.getElementById('dep-aprovado').checked
+      })
+      document.getElementById('modal-depoimento').classList.add('hidden')
+      window.showToast('✅ Depoimento adicionado!')
+      await loadDepoimentos()
+    } catch { window.showToast('❌ Erro ao salvar', false) }
+  })
+
+  window.toggleDepoimento = async function(id, aprovado) {
+    try {
+      await db.depoimentos.atualizar(id, { aprovado })
+      window.showToast(aprovado ? '✅ Depoimento aprovado' : '✅ Depoimento ocultado')
+      await loadDepoimentos()
+    } catch { window.showToast('❌ Erro', false) }
+  }
+
+  window.removerDepoimento = async function(id) {
+    if (!confirm('Remover este depoimento?')) return
+    try {
+      await db.depoimentos.remover(id)
+      window.showToast('✅ Depoimento removido!')
+      await loadDepoimentos()
+    } catch { window.showToast('❌ Erro ao remover', false) }
+  }
+
+  loadDepoimentos()
+</script>

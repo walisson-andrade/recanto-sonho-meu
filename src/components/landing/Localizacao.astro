@@ -1,0 +1,82 @@
+<section id="localizacao" class="py-20 bg-white">
+  <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+    <div class="text-center mb-12 fade-in">
+      <h2 class="font-display text-3xl sm:text-4xl font-bold text-verde mb-4">
+        Localização
+      </h2>
+      <p class="text-gray-500">Venha nos visitar em Uberlândia, MG.</p>
+    </div>
+
+    <div class="grid md:grid-cols-2 gap-8 fade-in">
+      <!-- Mapa -->
+      <div id="mapa-container" class="aspect-video md:aspect-square rounded-2xl overflow-hidden bg-gray-100 border border-gray-200">
+        <div class="w-full h-full flex items-center justify-center text-gray-400">
+          <p>Carregando mapa...</p>
+        </div>
+      </div>
+
+      <!-- Informações -->
+      <div class="flex flex-col justify-center">
+        <div id="loc-info" class="space-y-6">
+          <div>
+            <h3 class="font-semibold text-verde flex items-center gap-2 mb-2">
+              <span>📍</span> Endereço
+            </h3>
+            <p id="loc-endereco" class="text-gray-600 text-sm skeleton h-5 w-64 rounded"></p>
+          </div>
+          <div>
+            <h3 class="font-semibold text-verde flex items-center gap-2 mb-2">
+              <span>🕐</span> Horário de visita
+            </h3>
+            <p class="text-gray-600 text-sm">Seg–Sáb · 9h às 18h</p>
+            <p class="text-gray-400 text-xs mt-1">Agende pelo WhatsApp</p>
+          </div>
+          <div>
+            <h3 class="font-semibold text-verde flex items-center gap-2 mb-2">
+              <span>🚗</span> Estacionamento
+            </h3>
+            <p class="text-gray-600 text-sm">20 vagas no local, gratuito</p>
+          </div>
+        </div>
+
+        <a id="loc-maps-btn" href="#" target="_blank" rel="noopener"
+          class="mt-8 inline-flex items-center gap-2 bg-verde text-white px-6 py-3 rounded-full font-semibold hover:bg-verde-claro transition-colors self-start">
+          📍 Abrir no Google Maps
+        </a>
+      </div>
+    </div>
+  </div>
+</section>
+
+<script>
+  import { db } from '../../lib/supabase.js'
+
+  async function init() {
+    try {
+      const config = await db.config.listar()
+
+      const enderecoEl = document.getElementById('loc-endereco')
+      enderecoEl.textContent = config.endereco || 'Uberlândia, MG'
+      enderecoEl.classList.remove('skeleton', 'h-5', 'w-64', 'rounded')
+
+      document.getElementById('loc-maps-btn').href = config.maps_url || '#'
+
+      const container = document.getElementById('mapa-container')
+      if (config.maps_embed) {
+        container.innerHTML = `<iframe src="${config.maps_embed}" class="w-full h-full" style="border:0" allowfullscreen loading="lazy" referrerpolicy="no-referrer-when-downgrade"></iframe>`
+      } else if (config.maps_url) {
+        container.innerHTML = `
+          <a href="${config.maps_url}" target="_blank" rel="noopener" class="w-full h-full flex flex-col items-center justify-center text-verde hover:text-verde-claro transition-colors">
+            <div class="text-5xl mb-3">🗺️</div>
+            <p class="font-semibold">Ver no Google Maps</p>
+          </a>
+        `
+      }
+    } catch {
+      document.getElementById('loc-endereco').textContent = 'Uberlândia, MG'
+      document.getElementById('loc-endereco').classList.remove('skeleton', 'h-5', 'w-64', 'rounded')
+    }
+  }
+
+  init()
+</script>

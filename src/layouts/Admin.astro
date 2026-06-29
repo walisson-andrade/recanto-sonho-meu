@@ -1,0 +1,185 @@
+---
+import Base from './Base.astro'
+---
+
+<Base title="Admin - Recanto Sonho Meu" description="Painel administrativo">
+  <div id="admin-app" class="min-h-screen bg-gray-50">
+    <!-- Login overlay (exibido via JS quando não autenticado) -->
+    <div id="login-overlay" class="fixed inset-0 z-50 flex items-center justify-center bg-verde/95 hidden">
+      <div class="bg-white rounded-2xl shadow-2xl p-8 w-full max-w-md mx-4">
+        <div class="text-center mb-6">
+          <h1 class="font-display text-2xl font-bold text-verde">Recanto Sonho Meu</h1>
+          <p class="text-gray-500 mt-1">Painel Administrativo</p>
+        </div>
+        <form id="login-form" class="space-y-4">
+          <div>
+            <label class="block text-sm font-medium text-gray-700 mb-1">Email</label>
+            <input type="email" id="login-email" required
+              class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-verde focus:border-verde" />
+          </div>
+          <div>
+            <label class="block text-sm font-medium text-gray-700 mb-1">Senha</label>
+            <input type="password" id="login-password" required
+              class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-verde focus:border-verde" />
+          </div>
+          <p id="login-error" class="text-red-500 text-sm hidden"></p>
+          <button type="submit"
+            class="w-full bg-verde text-white py-2 rounded-lg font-semibold hover:bg-verde-claro transition-colors">
+            Entrar
+          </button>
+        </form>
+      </div>
+    </div>
+
+    <!-- Layout principal do admin -->
+    <div id="admin-layout" class="hidden">
+      <!-- Sidebar mobile toggle -->
+      <button id="sidebar-toggle"
+        class="lg:hidden fixed top-4 left-4 z-40 bg-verde text-white p-2 rounded-lg shadow-lg">
+        <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16M4 18h16" />
+        </svg>
+      </button>
+
+      <!-- Sidebar -->
+      <aside id="admin-sidebar"
+        class="fixed inset-y-0 left-0 z-30 w-64 bg-verde text-white transform -translate-x-full lg:translate-x-0 transition-transform">
+        <div class="p-6">
+          <h2 class="font-display text-xl font-bold text-white">Recanto <span class="text-champagne">Sonho Meu</span></h2>
+          <p class="text-white/50 text-sm">Painel Admin</p>
+        </div>
+        <nav class="px-4 space-y-1">
+          <button class="admin-tab-btn w-full text-left px-4 py-2.5 rounded-lg hover:bg-white/10 transition-colors flex items-center gap-3 text-sm" data-tab="agenda">
+            <span>📅</span> Agenda
+          </button>
+          <button class="admin-tab-btn w-full text-left px-4 py-2.5 rounded-lg hover:bg-white/10 transition-colors flex items-center gap-3 text-sm" data-tab="precos">
+            <span>💰</span> Preços
+          </button>
+          <button class="admin-tab-btn w-full text-left px-4 py-2.5 rounded-lg hover:bg-white/10 transition-colors flex items-center gap-3 text-sm" data-tab="pacotes">
+            <span>📦</span> Pacotes
+          </button>
+          <button class="admin-tab-btn w-full text-left px-4 py-2.5 rounded-lg hover:bg-white/10 transition-colors flex items-center gap-3 text-sm" data-tab="fotos">
+            <span>📸</span> Fotos
+          </button>
+          <button class="admin-tab-btn w-full text-left px-4 py-2.5 rounded-lg hover:bg-white/10 transition-colors flex items-center gap-3 text-sm" data-tab="estrutura">
+            <span>🏠</span> Estrutura
+          </button>
+          <button class="admin-tab-btn w-full text-left px-4 py-2.5 rounded-lg hover:bg-white/10 transition-colors flex items-center gap-3 text-sm" data-tab="depoimentos">
+            <span>💬</span> Depoimentos
+          </button>
+          <button class="admin-tab-btn w-full text-left px-4 py-2.5 rounded-lg hover:bg-white/10 transition-colors flex items-center gap-3 text-sm" data-tab="faq">
+            <span>❓</span> FAQ
+          </button>
+          <button class="admin-tab-btn w-full text-left px-4 py-2.5 rounded-lg hover:bg-white/10 transition-colors flex items-center gap-3 text-sm" data-tab="leads">
+            <span>📋</span> Leads
+          </button>
+          <button class="admin-tab-btn w-full text-left px-4 py-2.5 rounded-lg hover:bg-white/10 transition-colors flex items-center gap-3 text-sm" data-tab="configuracoes">
+            <span>⚙️</span> Configurações
+          </button>
+        </nav>
+        <div class="absolute bottom-0 left-0 right-0 p-4">
+          <button id="logout-btn"
+            class="w-full text-left px-4 py-2.5 rounded-lg hover:bg-red-500/20 transition-colors flex items-center gap-3 text-sm text-red-400">
+            <span>🚪</span> Sair
+          </button>
+        </div>
+      </aside>
+
+      <!-- Conteúdo principal -->
+      <main class="lg:ml-64 min-h-screen p-6 pt-16 lg:pt-6">
+        <slot />
+      </main>
+    </div>
+
+    <!-- Toast de feedback -->
+    <div id="toast" class="fixed bottom-6 right-6 z-50 hidden">
+      <div class="px-6 py-3 rounded-lg shadow-lg text-white font-medium text-sm"></div>
+    </div>
+  </div>
+
+  <script>
+    import { supabase } from '../lib/supabase.js'
+
+    const loginOverlay = document.getElementById('login-overlay')
+    const adminLayout = document.getElementById('admin-layout')
+    const loginForm = document.getElementById('login-form')
+    const loginError = document.getElementById('login-error')
+    const logoutBtn = document.getElementById('logout-btn')
+    const sidebarToggle = document.getElementById('sidebar-toggle')
+    const sidebar = document.getElementById('admin-sidebar')
+    const tabBtns = document.querySelectorAll('.admin-tab-btn')
+
+    async function checkAuth() {
+      const { data: { session } } = await supabase.auth.getSession()
+      if (session) {
+        loginOverlay.classList.add('hidden')
+        adminLayout.classList.remove('hidden')
+      } else {
+        loginOverlay.classList.remove('hidden')
+        adminLayout.classList.add('hidden')
+      }
+    }
+
+    supabase.auth.onAuthStateChange((_event, session) => {
+      if (session) {
+        loginOverlay.classList.add('hidden')
+        adminLayout.classList.remove('hidden')
+      } else {
+        loginOverlay.classList.remove('hidden')
+        adminLayout.classList.add('hidden')
+      }
+    })
+
+    loginForm.addEventListener('submit', async (e) => {
+      e.preventDefault()
+      loginError.classList.add('hidden')
+      const email = document.getElementById('login-email').value
+      const password = document.getElementById('login-password').value
+      const { error } = await supabase.auth.signInWithPassword({ email, password })
+      if (error) {
+        loginError.textContent = 'Email ou senha inválidos'
+        loginError.classList.remove('hidden')
+      }
+    })
+
+    logoutBtn.addEventListener('click', async () => {
+      await supabase.auth.signOut()
+      location.reload()
+    })
+
+    sidebarToggle.addEventListener('click', () => {
+      sidebar.classList.toggle('-translate-x-full')
+    })
+
+    // Navegação entre abas
+    const tabPanels = document.querySelectorAll('.admin-tab-panel')
+    function setActiveTab(tab) {
+      tabBtns.forEach(btn => {
+        btn.classList.toggle('bg-white/20', btn.dataset.tab === tab)
+      })
+      tabPanels.forEach(panel => {
+        panel.classList.toggle('hidden', panel.dataset.tab !== tab)
+      })
+      sidebar.classList.add('-translate-x-full')
+    }
+
+    tabBtns.forEach(btn => {
+      btn.addEventListener('click', () => setActiveTab(btn.dataset.tab))
+    })
+
+    // Ativar primeira aba
+    setActiveTab('agenda')
+
+    // Toast global
+    window.showToast = function(message, success = true) {
+      const toast = document.getElementById('toast')
+      const inner = toast.querySelector('div')
+      inner.textContent = message
+      inner.className = `px-6 py-3 rounded-lg shadow-lg text-white font-medium text-sm ${success ? 'bg-green-600' : 'bg-red-600'}`
+      toast.classList.remove('hidden')
+      setTimeout(() => toast.classList.add('hidden'), 3000)
+    }
+
+    checkAuth()
+  </script>
+</Base>

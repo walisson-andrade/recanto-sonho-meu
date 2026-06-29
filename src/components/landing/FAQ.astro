@@ -1,0 +1,75 @@
+<section id="faq" class="py-20 bg-creme">
+  <div class="max-w-3xl mx-auto px-4 sm:px-6 lg:px-8">
+    <div class="text-center mb-12 fade-in">
+      <h2 class="font-display text-3xl sm:text-4xl font-bold text-verde mb-4">
+        Perguntas Frequentes
+      </h2>
+      <p class="text-gray-500">Tire suas dúvidas sobre o espaço e nossos serviços.</p>
+    </div>
+
+    <div id="faq-list" class="space-y-3 fade-in">
+      <div class="skeleton h-14 rounded-xl"></div>
+      <div class="skeleton h-14 rounded-xl"></div>
+      <div class="skeleton h-14 rounded-xl"></div>
+    </div>
+
+    <!-- Fallback -->
+    <div id="faq-vazio" class="hidden text-center py-8 fade-in">
+      <div class="text-5xl mb-4">❓</div>
+      <p class="text-gray-400">Nenhuma pergunta cadastrada.</p>
+    </div>
+
+    <!-- JSON-LD schema -->
+    <script id="faq-schema" type="application/ld+json"></script>
+  </div>
+</section>
+
+<script>
+  import { db } from '../../lib/supabase.js'
+
+  async function init() {
+    let perguntas = []
+    try {
+      perguntas = await db.faq.listar()
+    } catch { perguntas = [] }
+
+    const container = document.getElementById('faq-list')
+
+    if (perguntas.length === 0) {
+      container.classList.add('hidden')
+      document.getElementById('faq-vazio').classList.remove('hidden')
+      return
+    }
+
+    container.innerHTML = perguntas.map((faq, i) => `
+      <details class="group bg-white rounded-xl border border-gray-100 overflow-hidden">
+        <summary class="flex items-center justify-between p-4 cursor-pointer hover:bg-gray-50 transition-colors">
+          <span class="font-medium text-verde text-left">${faq.pergunta}</span>
+          <svg class="w-5 h-5 text-gray-400 group-open:rotate-180 transition-transform flex-shrink-0 ml-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"/>
+          </svg>
+        </summary>
+        <div class="px-4 pb-4 text-gray-600 text-sm leading-relaxed border-t border-gray-50 pt-3">
+          ${faq.resposta}
+        </div>
+      </details>
+    `).join('')
+
+    // JSON-LD para SEO
+    const schema = {
+      "@context": "https://schema.org",
+      "@type": "FAQPage",
+      "mainEntity": perguntas.map(faq => ({
+        "@type": "Question",
+        "name": faq.pergunta,
+        "acceptedAnswer": {
+          "@type": "Answer",
+          "text": faq.resposta
+        }
+      }))
+    }
+    document.getElementById('faq-schema').textContent = JSON.stringify(schema)
+  }
+
+  init()
+</script>

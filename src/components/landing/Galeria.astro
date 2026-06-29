@@ -1,0 +1,159 @@
+<section id="galeria" class="py-20 bg-white">
+  <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+    <div class="text-center mb-12 fade-in">
+      <h2 class="font-display text-3xl sm:text-4xl font-bold text-verde mb-4">
+        Galeria de Fotos
+      </h2>
+      <p class="text-gray-500 max-w-2xl mx-auto">
+        Conheça nosso espaço e veja eventos que já realizamos.
+      </p>
+    </div>
+
+    <!-- Filtros -->
+    <div id="galeria-filtros" class="flex flex-wrap items-center justify-center gap-2 mb-8 fade-in">
+      <button class="galeria-filtro-btn px-4 py-2 rounded-full text-sm font-medium bg-verde text-white" data-cat="todos">Todos</button>
+      <button class="galeria-filtro-btn px-4 py-2 rounded-full text-sm font-medium bg-gray-100 text-gray-600 hover:bg-gray-200" data-cat="casamentos">Casamentos</button>
+      <button class="galeria-filtro-btn px-4 py-2 rounded-full text-sm font-medium bg-gray-100 text-gray-600 hover:bg-gray-200" data-cat="festas">Festas</button>
+      <button class="galeria-filtro-btn px-4 py-2 rounded-full text-sm font-medium bg-gray-100 text-gray-600 hover:bg-gray-200" data-cat="confraternizacoes">Confraternizações</button>
+      <button class="galeria-filtro-btn px-4 py-2 rounded-full text-sm font-medium bg-gray-100 text-gray-600 hover:bg-gray-200" data-cat="geral">Espaço</button>
+    </div>
+
+    <!-- Grid -->
+    <div id="galeria-grid" class="columns-2 md:columns-3 lg:columns-4 gap-4 fade-in">
+      <div class="skeleton h-48 rounded-xl mb-4"></div>
+      <div class="skeleton h-64 rounded-xl mb-4"></div>
+      <div class="skeleton h-56 rounded-xl mb-4"></div>
+      <div class="skeleton h-48 rounded-xl mb-4"></div>
+    </div>
+
+    <!-- Fallback vazio -->
+    <div id="galeria-vazio" class="hidden text-center py-12 fade-in">
+      <div class="text-5xl mb-4">📸</div>
+      <p class="text-gray-400">Nenhuma foto cadastrada ainda.</p>
+    </div>
+  </div>
+
+  <!-- Lightbox -->
+  <div id="lightbox" class="fixed inset-0 z-50 bg-black/90 hidden flex items-center justify-center">
+    <button id="lightbox-close" class="absolute top-4 right-4 text-white text-3xl hover:text-gray-300 z-10">&times;</button>
+    <button id="lightbox-prev" class="absolute left-4 text-white text-4xl hover:text-gray-300 z-10">&larr;</button>
+    <button id="lightbox-next" class="absolute right-4 text-white text-4xl hover:text-gray-300 z-10">&rarr;</button>
+    <img id="lightbox-img" class="max-w-[90vw] max-h-[85vh] object-contain rounded-lg" alt="" />
+    <p id="lightbox-caption" class="absolute bottom-6 left-0 right-0 text-center text-white text-sm"></p>
+  </div>
+</section>
+
+<script>
+  import { db } from '../../lib/supabase.js'
+
+  let fotos = []
+  let filteredFotos = []
+  let lightboxIndex = 0
+
+  async function init() {
+    try {
+      fotos = await db.fotos.listar()
+    } catch { fotos = [] }
+
+    if (fotos.length === 0) {
+      document.getElementById('galeria-grid').classList.add('hidden')
+      document.getElementById('galeria-vazio').classList.remove('hidden')
+      return
+    }
+
+    filteredFotos = fotos
+    renderGrid()
+    setupFiltros()
+    setupLightbox()
+  }
+
+  function renderGrid() {
+    const grid = document.getElementById('galeria-grid')
+    if (filteredFotos.length === 0) {
+      grid.innerHTML = '<p class="text-gray-400 text-center col-span-full py-8">Nenhuma foto nesta categoria.</p>'
+      return
+    }
+    grid.innerHTML = filteredFotos.map((f, i) => `
+      <div class="break-inside-avoid mb-4 cursor-pointer group" onclick="window.openLightbox(${i})">
+        <div class="relative overflow-hidden rounded-xl">
+          <img src="${f.url}" alt="${f.legenda || 'Foto do espaço'}" loading="lazy"
+            class="w-full object-cover group-hover:scale-105 transition-transform duration-300" />
+          ${f.legenda ? `<div class="absolute bottom-0 left-0 right-0 bg-gradient-to-t from-black/60 to-transparent p-3">
+            <p class="text-white text-sm">${f.legenda}</p>
+          </div>` : ''}
+        </div>
+      </div>
+    `).join('')
+  }
+
+  function setupFiltros() {
+    document.querySelectorAll('.galeria-filtro-btn').forEach(btn => {
+      btn.addEventListener('click', () => {
+        document.querySelectorAll('.galeria-filtro-btn').forEach(b => {
+          b.classList.remove('bg-verde', 'text-white')
+          b.classList.add('bg-gray-100', 'text-gray-600')
+        })
+        btn.classList.remove('bg-gray-100', 'text-gray-600')
+        btn.classList.add('bg-verde', 'text-white')
+
+        const cat = btn.dataset.cat
+        filteredFotos = cat === 'todos' ? fotos : fotos.filter(f => f.categoria === cat)
+        renderGrid()
+      })
+    })
+  }
+
+  function setupLightbox() {
+    const lightbox = document.getElementById('lightbox')
+    const img = document.getElementById('lightbox-img')
+    const caption = document.getElementById('lightbox-caption')
+
+    window.openLightbox = function(index) {
+      lightboxIndex = index
+      updateLightbox()
+      lightbox.classList.remove('hidden')
+    }
+
+    function updateLightbox() {
+      const f = filteredFotos[lightboxIndex]
+      img.src = f.url
+      img.alt = f.legenda || ''
+      caption.textContent = f.legenda || ''
+    }
+
+    document.getElementById('lightbox-close').addEventListener('click', () => lightbox.classList.add('hidden'))
+    document.getElementById('lightbox-prev').addEventListener('click', () => {
+      lightboxIndex = (lightboxIndex - 1 + filteredFotos.length) % filteredFotos.length
+      updateLightbox()
+    })
+    document.getElementById('lightbox-next').addEventListener('click', () => {
+      lightboxIndex = (lightboxIndex + 1) % filteredFotos.length
+      updateLightbox()
+    })
+
+    lightbox.addEventListener('click', (e) => {
+      if (e.target === lightbox) lightbox.classList.add('hidden')
+    })
+
+    document.addEventListener('keydown', (e) => {
+      if (lightbox.classList.contains('hidden')) return
+      if (e.key === 'Escape') lightbox.classList.add('hidden')
+      if (e.key === 'ArrowLeft') { lightboxIndex = (lightboxIndex - 1 + filteredFotos.length) % filteredFotos.length; updateLightbox() }
+      if (e.key === 'ArrowRight') { lightboxIndex = (lightboxIndex + 1) % filteredFotos.length; updateLightbox() }
+    })
+
+    // Swipe mobile
+    let touchStartX = 0
+    lightbox.addEventListener('touchstart', (e) => { touchStartX = e.touches[0].clientX }, { passive: true })
+    lightbox.addEventListener('touchend', (e) => {
+      const diff = touchStartX - e.changedTouches[0].clientX
+      if (Math.abs(diff) > 50) {
+        if (diff > 0) { lightboxIndex = (lightboxIndex + 1) % filteredFotos.length }
+        else { lightboxIndex = (lightboxIndex - 1 + filteredFotos.length) % filteredFotos.length }
+        updateLightbox()
+      }
+    })
+  }
+
+  init()
+</script>

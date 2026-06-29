@@ -1,0 +1,143 @@
+<section class="relative min-h-screen flex items-center justify-center overflow-hidden bg-gradient-to-br from-verde via-verde-claro to-verde">
+  <!-- Canvas de confetes -->
+  <canvas id="confetti-canvas" class="absolute inset-0 pointer-events-none"></canvas>
+
+  <div class="relative z-10 text-center px-4 max-w-4xl mx-auto pt-20">
+    <!-- Badge -->
+    <div class="inline-flex items-center gap-2 bg-white/15 backdrop-blur-sm text-white px-4 py-2 rounded-full text-sm mb-6">
+      <span>✨</span> Salão de Festas · Uberlândia, MG
+    </div>
+
+    <!-- Título -->
+    <h1 class="font-display text-4xl sm:text-5xl md:text-6xl lg:text-7xl font-bold text-white leading-tight mb-6">
+      Seu evento dos <em class="text-champagne not-italic">sonhos</em> começa aqui
+    </h1>
+
+    <!-- Pill dinâmica -->
+    <div id="hero-pill" class="inline-flex items-center gap-2 bg-white/20 backdrop-blur-sm text-white px-5 py-2.5 rounded-full text-sm mb-8">
+      <span>📅</span>
+      <span id="hero-pill-text" class="skeleton w-48 h-4 inline-block rounded"></span>
+    </div>
+
+    <!-- Botões -->
+    <div class="flex flex-col sm:flex-row items-center justify-center gap-4 mb-12">
+      <a href="#calculadora"
+        class="bg-dourado text-white px-8 py-3.5 rounded-full font-semibold text-lg hover:bg-dourado-escuro transition-colors shadow-lg">
+        Garanta sua data
+      </a>
+      <a href="#estrutura"
+        class="bg-white/15 backdrop-blur-sm text-white px-8 py-3.5 rounded-full font-semibold text-lg hover:bg-white/25 transition-colors border border-white/30">
+        Ver o espaço
+      </a>
+    </div>
+
+    <!-- Stats -->
+    <div class="flex items-center justify-center gap-8 sm:gap-12 text-white/90">
+      <div class="text-center">
+        <div class="text-2xl sm:text-3xl font-bold">150+</div>
+        <div class="text-xs sm:text-sm text-white/70">Pessoas</div>
+      </div>
+      <div class="w-px h-10 bg-white/20"></div>
+      <div class="text-center">
+        <div class="text-2xl sm:text-3xl font-bold">5★</div>
+        <div class="text-xs sm:text-sm text-white/70">Avaliações</div>
+      </div>
+      <div class="w-px h-10 bg-white/20"></div>
+      <div class="text-center">
+        <div class="text-2xl sm:text-3xl font-bold">3</div>
+        <div class="text-xs sm:text-sm text-white/70">Tipos de evento</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Onda decorativa -->
+  <div class="absolute bottom-0 left-0 right-0">
+    <svg viewBox="0 0 1440 120" class="w-full" preserveAspectRatio="none">
+      <path fill="#FAFAF5" d="M0,64L48,69.3C96,75,192,85,288,80C384,75,480,53,576,48C672,43,768,53,864,64C960,75,1056,85,1152,80C1248,75,1344,53,1392,42.7L1440,32L1440,120L0,120Z" />
+    </svg>
+  </div>
+</section>
+
+<script>
+  import { db } from '../../lib/supabase.js'
+  import { formatarDataExtenso } from '../../lib/helpers.js'
+
+  // Pill dinâmica — próxima data disponível
+  async function carregarProximaData() {
+    try {
+      const reservas = await db.reservas.listar()
+      const datasReservadas = new Set(reservas.map(r => r.data))
+      const hoje = new Date()
+
+      for (let i = 1; i <= 90; i++) {
+        const d = new Date(hoje)
+        d.setDate(d.getDate() + i)
+        const iso = d.toISOString().split('T')[0]
+        if (!datasReservadas.has(iso)) {
+          document.getElementById('hero-pill-text').textContent =
+            `Próxima data disponível: ${formatarDataExtenso(iso)}`
+          document.getElementById('hero-pill-text').classList.remove('skeleton', 'w-48', 'h-4', 'inline-block', 'rounded')
+          return
+        }
+      }
+      document.getElementById('hero-pill-text').textContent = 'Consulte disponibilidade'
+      document.getElementById('hero-pill-text').classList.remove('skeleton', 'w-48', 'h-4', 'inline-block', 'rounded')
+    } catch {
+      document.getElementById('hero-pill-text').textContent = 'Consulte disponibilidade'
+      document.getElementById('hero-pill-text').classList.remove('skeleton', 'w-48', 'h-4', 'inline-block', 'rounded')
+    }
+  }
+
+  // Confetes canvas
+  function initConfetti() {
+    const canvas = document.getElementById('confetti-canvas')
+    const ctx = canvas.getContext('2d')
+    const reducedMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches
+    if (reducedMotion) return
+
+    canvas.width = window.innerWidth
+    canvas.height = window.innerHeight
+
+    const colors = ['#F5E6C8', '#C9A84C', '#F2C4CE', '#FFFFFF', '#9B7A2E']
+    const particles = Array.from({ length: 60 }, () => ({
+      x: Math.random() * canvas.width,
+      y: Math.random() * canvas.height,
+      size: Math.random() * 6 + 2,
+      speedX: (Math.random() - 0.5) * 0.5,
+      speedY: Math.random() * 0.8 + 0.2,
+      color: colors[Math.floor(Math.random() * colors.length)],
+      rotation: Math.random() * 360,
+      rotSpeed: (Math.random() - 0.5) * 2
+    }))
+
+    function animate() {
+      ctx.clearRect(0, 0, canvas.width, canvas.height)
+      particles.forEach(p => {
+        ctx.save()
+        ctx.translate(p.x, p.y)
+        ctx.rotate(p.rotation * Math.PI / 180)
+        ctx.fillStyle = p.color
+        ctx.globalAlpha = 0.6
+        ctx.fillRect(-p.size / 2, -p.size / 2, p.size, p.size * 0.6)
+        ctx.restore()
+
+        p.x += p.speedX
+        p.y += p.speedY
+        p.rotation += p.rotSpeed
+        if (p.y > canvas.height) { p.y = -10; p.x = Math.random() * canvas.width }
+        if (p.x < 0) p.x = canvas.width
+        if (p.x > canvas.width) p.x = 0
+      })
+      requestAnimationFrame(animate)
+    }
+
+    animate()
+    window.addEventListener('resize', () => {
+      canvas.width = window.innerWidth
+      canvas.height = window.innerHeight
+    })
+  }
+
+  carregarProximaData()
+  initConfetti()
+</script>

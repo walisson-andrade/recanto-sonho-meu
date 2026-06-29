@@ -1,0 +1,220 @@
+<div class="admin-tab-panel hidden" data-tab="pacotes">
+  <div class="flex items-center justify-between mb-6">
+    <h2 class="text-2xl font-bold text-verde">📦 Pacotes</h2>
+    <button id="add-pacote-btn" class="bg-verde text-white px-4 py-2 rounded-lg text-sm font-semibold hover:bg-verde-claro">
+      + Adicionar
+    </button>
+  </div>
+
+  <div class="bg-white rounded-xl shadow-sm border border-gray-100 overflow-hidden">
+    <div class="overflow-x-auto">
+      <table class="w-full text-sm">
+        <thead class="bg-gray-50 text-left">
+          <tr>
+            <th class="px-4 py-3 font-medium text-gray-500 w-8"></th>
+            <th class="px-4 py-3 font-medium text-gray-500">Ícone</th>
+            <th class="px-4 py-3 font-medium text-gray-500">Nome</th>
+            <th class="px-4 py-3 font-medium text-gray-500">Descrição</th>
+            <th class="px-4 py-3 font-medium text-gray-500">Preço</th>
+            <th class="px-4 py-3 font-medium text-gray-500">Unidade</th>
+            <th class="px-4 py-3 font-medium text-gray-500">Disponível</th>
+            <th class="px-4 py-3 font-medium text-gray-500">Ações</th>
+          </tr>
+        </thead>
+        <tbody id="pacotes-tbody">
+          <tr><td colspan="8" class="px-4 py-8 text-center text-gray-400">Carregando...</td></tr>
+        </tbody>
+      </table>
+    </div>
+  </div>
+
+  <!-- Modal -->
+  <div id="modal-pacote" class="fixed inset-0 z-50 flex items-center justify-center bg-black/50 hidden">
+    <div class="bg-white rounded-2xl p-6 max-w-md w-full mx-4 shadow-2xl">
+      <h3 id="modal-pacote-title" class="font-display text-xl font-bold text-verde mb-4">Novo Pacote</h3>
+      <form id="form-pacote" class="space-y-4">
+        <input type="hidden" id="pacote-id" />
+        <div class="grid grid-cols-2 gap-4">
+          <div>
+            <label class="block text-sm font-medium text-gray-700 mb-1">Ícone (emoji)</label>
+            <input type="text" id="pacote-icone" required class="w-full min-w-0 px-3 py-2 border rounded-lg box-border" maxlength="4" />
+          </div>
+          <div>
+            <label class="block text-sm font-medium text-gray-700 mb-1">Nome</label>
+            <input type="text" id="pacote-nome" required class="w-full min-w-0 px-3 py-2 border rounded-lg box-border" />
+          </div>
+        </div>
+        <div>
+          <label class="block text-sm font-medium text-gray-700 mb-1">Descrição</label>
+          <input type="text" id="pacote-descricao" class="w-full min-w-0 px-3 py-2 border rounded-lg box-border" />
+        </div>
+        <div class="grid grid-cols-2 gap-4">
+          <div>
+            <label class="block text-sm font-medium text-gray-700 mb-1">Preço (R$)</label>
+            <input type="number" id="pacote-preco" required step="0.01" class="w-full min-w-0 px-3 py-2 border rounded-lg box-border" />
+          </div>
+          <div>
+            <label class="block text-sm font-medium text-gray-700 mb-1">Unidade</label>
+            <select id="pacote-unidade" class="w-full min-w-0 px-3 py-2 border rounded-lg box-border">
+              <option value="diária">Diária</option>
+              <option value="por metro">Por metro</option>
+              <option value="unidade">Unidade</option>
+            </select>
+          </div>
+        </div>
+        <div class="flex gap-3 pt-2">
+          <button type="button" id="modal-pacote-cancel" class="flex-1 py-2 rounded-lg border border-gray-300 hover:bg-gray-50">Cancelar</button>
+          <button type="submit" class="flex-1 py-2 rounded-lg bg-verde text-white font-semibold hover:bg-verde-claro">Salvar</button>
+        </div>
+      </form>
+    </div>
+  </div>
+</div>
+
+<script>
+  import { db } from '../../lib/supabase.js'
+  import { formatarPreco } from '../../lib/helpers.js'
+
+  let pacotes = []
+
+  async function loadPacotes() {
+    try {
+      pacotes = await db.pacotes.listar()
+    } catch { pacotes = [] }
+    renderPacotes()
+  }
+
+  function renderPacotes() {
+    const tbody = document.getElementById('pacotes-tbody')
+    if (pacotes.length === 0) {
+      tbody.innerHTML = '<tr><td colspan="8" class="px-4 py-8 text-center text-gray-400">Nenhum pacote.</td></tr>'
+      return
+    }
+    tbody.innerHTML = pacotes.map((p, i) => `
+      <tr class="border-t border-gray-50 hover:bg-gray-50" draggable="true" data-id="${p.id}" data-ordem="${i}">
+        <td class="px-4 py-3 cursor-grab text-gray-300">⋮⋮</td>
+        <td class="px-4 py-3 text-xl">${p.icone}</td>
+        <td class="px-4 py-3 font-medium">${p.nome}</td>
+        <td class="px-4 py-3 text-gray-500 text-xs">${p.descricao || '—'}</td>
+        <td class="px-4 py-3">${formatarPreco(p.preco)}</td>
+        <td class="px-4 py-3 text-xs">${p.unidade}</td>
+        <td class="px-4 py-3">
+          <button onclick="window.togglePacote('${p.id}', ${!p.disponivel})"
+            class="px-2 py-1 rounded text-xs font-medium ${p.disponivel ? 'bg-green-100 text-green-700' : 'bg-gray-100 text-gray-500'}">
+            ${p.disponivel ? 'Sim' : 'Não'}
+          </button>
+        </td>
+        <td class="px-4 py-3">
+          <div class="flex gap-1">
+            <button onclick="window.editPacote('${p.id}')" class="p-1 hover:bg-blue-50 rounded text-blue-500">✏️</button>
+            <button onclick="window.removerPacote('${p.id}')" class="p-1 hover:bg-red-50 rounded text-red-500">🗑️</button>
+          </div>
+        </td>
+      </tr>
+    `).join('')
+
+    setupDragDrop()
+  }
+
+  function setupDragDrop() {
+    const tbody = document.getElementById('pacotes-tbody')
+    let dragRow = null
+
+    tbody.querySelectorAll('tr[draggable]').forEach(row => {
+      row.addEventListener('dragstart', (e) => {
+        dragRow = row
+        row.classList.add('opacity-50')
+      })
+      row.addEventListener('dragend', () => {
+        row.classList.remove('opacity-50')
+        dragRow = null
+      })
+      row.addEventListener('dragover', (e) => {
+        e.preventDefault()
+        row.classList.add('bg-verde/5')
+      })
+      row.addEventListener('dragleave', () => row.classList.remove('bg-verde/5'))
+      row.addEventListener('drop', async (e) => {
+        e.preventDefault()
+        row.classList.remove('bg-verde/5')
+        if (dragRow && dragRow !== row) {
+          tbody.insertBefore(dragRow, row)
+          const rows = [...tbody.querySelectorAll('tr[data-id]')]
+          const ordens = rows.map((r, i) => ({ id: r.dataset.id, ordem: i }))
+          try {
+            await db.pacotes.reordenar(ordens)
+            await loadPacotes()
+          } catch { window.showToast('❌ Erro ao reordenar', false) }
+        }
+      })
+    })
+  }
+
+  document.getElementById('add-pacote-btn').addEventListener('click', () => {
+    document.getElementById('modal-pacote-title').textContent = 'Novo Pacote'
+    document.getElementById('form-pacote').reset()
+    document.getElementById('pacote-id').value = ''
+    document.getElementById('modal-pacote').classList.remove('hidden')
+  })
+
+  document.getElementById('modal-pacote-cancel').addEventListener('click', () => {
+    document.getElementById('modal-pacote').classList.add('hidden')
+  })
+
+  window.editPacote = function(id) {
+    const p = pacotes.find(x => x.id === id)
+    if (!p) return
+    document.getElementById('modal-pacote-title').textContent = 'Editar Pacote'
+    document.getElementById('pacote-id').value = p.id
+    document.getElementById('pacote-icone').value = p.icone
+    document.getElementById('pacote-nome').value = p.nome
+    document.getElementById('pacote-descricao').value = p.descricao || ''
+    document.getElementById('pacote-preco').value = p.preco
+    document.getElementById('pacote-unidade').value = p.unidade
+    document.getElementById('modal-pacote').classList.remove('hidden')
+  }
+
+  document.getElementById('form-pacote').addEventListener('submit', async (e) => {
+    e.preventDefault()
+    const id = document.getElementById('pacote-id').value
+    const dados = {
+      icone: document.getElementById('pacote-icone').value,
+      nome: document.getElementById('pacote-nome').value,
+      descricao: document.getElementById('pacote-descricao').value || null,
+      preco: Number(document.getElementById('pacote-preco').value),
+      unidade: document.getElementById('pacote-unidade').value
+    }
+    try {
+      if (id) {
+        await db.pacotes.atualizar(id, dados)
+      } else {
+        dados.ordem = pacotes.length
+        await db.pacotes.adicionar(dados)
+      }
+      document.getElementById('modal-pacote').classList.add('hidden')
+      window.showToast('✅ Pacote salvo!')
+      await loadPacotes()
+    } catch {
+      window.showToast('❌ Erro ao salvar', false)
+    }
+  })
+
+  window.togglePacote = async function(id, disponivel) {
+    try {
+      await db.pacotes.atualizar(id, { disponivel })
+      window.showToast(disponivel ? '✅ Pacote ativado' : '✅ Pacote desativado')
+      await loadPacotes()
+    } catch { window.showToast('❌ Erro', false) }
+  }
+
+  window.removerPacote = async function(id) {
+    if (!confirm('Remover este pacote?')) return
+    try {
+      await db.pacotes.remover(id)
+      window.showToast('✅ Pacote removido!')
+      await loadPacotes()
+    } catch { window.showToast('❌ Erro ao remover', false) }
+  }
+
+  loadPacotes()
+</script>

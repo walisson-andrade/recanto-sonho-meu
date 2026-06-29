@@ -1,0 +1,305 @@
+<div class="admin-tab-panel" data-tab="agenda">
+  <h2 class="text-2xl font-bold text-verde mb-6">📅 Agenda</h2>
+
+  <!-- Calendário admin -->
+  <div class="bg-white rounded-xl p-4 sm:p-6 shadow-sm border border-gray-100 mb-8">
+    <div class="flex items-center justify-between mb-4">
+      <button id="adm-agenda-prev" class="p-2 hover:bg-gray-100 rounded-lg text-verde">&larr;</button>
+      <span id="adm-agenda-label" class="font-display text-lg font-bold text-verde"></span>
+      <button id="adm-agenda-next" class="p-2 hover:bg-gray-100 rounded-lg text-verde">&rarr;</button>
+    </div>
+
+    <div id="adm-agenda-months" class="grid md:grid-cols-3 gap-4">
+      <!-- 3 meses renderizados via JS -->
+    </div>
+  </div>
+
+  <!-- Tabela de reservas futuras -->
+  <div class="bg-white rounded-xl shadow-sm border border-gray-100 overflow-hidden">
+    <div class="p-4 border-b border-gray-100">
+      <h3 class="font-semibold text-verde">Próximas reservas</h3>
+    </div>
+    <div class="overflow-x-auto">
+      <table class="w-full text-sm">
+        <thead class="bg-gray-50 text-left">
+          <tr>
+            <th class="px-4 py-3 font-medium text-gray-500">Data</th>
+            <th class="px-4 py-3 font-medium text-gray-500">Dia</th>
+            <th class="px-4 py-3 font-medium text-gray-500">Cliente</th>
+            <th class="px-4 py-3 font-medium text-gray-500">Valor</th>
+            <th class="px-4 py-3 font-medium text-gray-500">Pacotes</th>
+            <th class="px-4 py-3 font-medium text-gray-500">Ações</th>
+          </tr>
+        </thead>
+        <tbody id="adm-reservas-tbody">
+          <tr><td colspan="6" class="px-4 py-8 text-center text-gray-400">Carregando...</td></tr>
+        </tbody>
+      </table>
+    </div>
+  </div>
+
+  <!-- Modal Nova Reserva -->
+  <div id="modal-reserva" class="fixed inset-0 z-50 flex items-center justify-center bg-black/50 hidden">
+    <div class="bg-white rounded-2xl p-6 max-w-lg w-full mx-4 shadow-2xl max-h-[90vh] overflow-y-auto">
+      <h3 class="font-display text-xl font-bold text-verde mb-4">Nova Reserva</h3>
+      <p id="modal-reserva-data" class="text-sm text-gray-500 mb-4"></p>
+
+      <form id="form-reserva" class="space-y-4">
+        <input type="hidden" id="reserva-data" />
+        <div>
+          <label class="block text-sm font-medium text-gray-700 mb-1">Título *</label>
+          <input type="text" id="reserva-titulo" required class="w-full px-3 py-2 border rounded-lg focus:ring-2 focus:ring-verde" />
+        </div>
+        <div class="grid grid-cols-2 gap-4">
+          <div>
+            <label class="block text-sm font-medium text-gray-700 mb-1">Nome do cliente</label>
+            <input type="text" id="reserva-nome" class="w-full px-3 py-2 border rounded-lg focus:ring-2 focus:ring-verde" />
+          </div>
+          <div>
+            <label class="block text-sm font-medium text-gray-700 mb-1">WhatsApp</label>
+            <input type="tel" id="reserva-whatsapp" class="w-full px-3 py-2 border rounded-lg focus:ring-2 focus:ring-verde" />
+          </div>
+        </div>
+        <div>
+          <label class="block text-sm font-medium text-gray-700 mb-1">Email</label>
+          <input type="email" id="reserva-email" class="w-full px-3 py-2 border rounded-lg focus:ring-2 focus:ring-verde" />
+        </div>
+        <div class="grid grid-cols-2 gap-4">
+          <div>
+            <label class="block text-sm font-medium text-gray-700 mb-1">Tipo de evento</label>
+            <select id="reserva-tipo" class="w-full px-3 py-2 border rounded-lg focus:ring-2 focus:ring-verde">
+              <option value="">Selecione</option>
+              <option value="Casamento">Casamento</option>
+              <option value="Festa">Festa</option>
+              <option value="Confraternização">Confraternização</option>
+              <option value="Outro">Outro</option>
+            </select>
+          </div>
+          <div>
+            <label class="block text-sm font-medium text-gray-700 mb-1">Nº convidados</label>
+            <input type="number" id="reserva-convidados" min="1" max="150" class="w-full px-3 py-2 border rounded-lg focus:ring-2 focus:ring-verde" />
+          </div>
+        </div>
+        <div>
+          <label class="block text-sm font-medium text-gray-700 mb-1">Valor total (R$)</label>
+          <input type="number" id="reserva-valor" step="0.01" class="w-full px-3 py-2 border rounded-lg focus:ring-2 focus:ring-verde" />
+        </div>
+        <div>
+          <label class="block text-sm font-medium text-gray-700 mb-1">Observações</label>
+          <textarea id="reserva-obs" rows="2" class="w-full px-3 py-2 border rounded-lg focus:ring-2 focus:ring-verde resize-none"></textarea>
+        </div>
+        <label class="flex items-center gap-2">
+          <input type="checkbox" id="reserva-enviar-email" class="accent-verde" />
+          <span class="text-sm text-gray-600">Enviar email de confirmação ao cliente</span>
+        </label>
+
+        <div class="flex gap-3 pt-2">
+          <button type="button" id="modal-reserva-cancel" class="flex-1 py-2 rounded-lg border border-gray-300 hover:bg-gray-50">Cancelar</button>
+          <button type="submit" class="flex-1 py-2 rounded-lg bg-verde text-white font-semibold hover:bg-verde-claro">Salvar</button>
+        </div>
+      </form>
+    </div>
+  </div>
+
+  <!-- Modal Detalhes -->
+  <div id="modal-detalhes" class="fixed inset-0 z-50 flex items-center justify-center bg-black/50 hidden">
+    <div class="bg-white rounded-2xl p-6 max-w-md w-full mx-4 shadow-2xl">
+      <h3 class="font-display text-xl font-bold text-verde mb-4">Detalhes da Reserva</h3>
+      <div id="detalhes-content" class="space-y-2 text-sm text-gray-600 mb-6"></div>
+      <div class="flex gap-3">
+        <button id="modal-detalhes-close" class="flex-1 py-2 rounded-lg border border-gray-300 hover:bg-gray-50">Fechar</button>
+        <button id="modal-detalhes-remove" class="flex-1 py-2 rounded-lg bg-red-500 text-white font-semibold hover:bg-red-600">Remover</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<script>
+  import { db, supabase } from '../../lib/supabase.js'
+  import { nomeMes, dataParaISO, formatarData, formatarPreco, diaSemana } from '../../lib/helpers.js'
+
+  let reservas = []
+  let admBaseMonth = new Date().getMonth()
+  let admBaseYear = new Date().getFullYear()
+
+  async function loadAgenda() {
+    try {
+      reservas = await db.reservas.listar()
+    } catch { reservas = [] }
+    renderAdmCalendar()
+    renderReservasTable()
+  }
+
+  function renderAdmCalendar() {
+    const container = document.getElementById('adm-agenda-months')
+    let html = ''
+    for (let offset = 0; offset < 3; offset++) {
+      let m = admBaseMonth + offset
+      let y = admBaseYear
+      while (m > 11) { m -= 12; y++ }
+
+      const firstDay = new Date(y, m, 1).getDay()
+      const daysInMonth = new Date(y, m + 1, 0).getDate()
+      const hoje = new Date(); hoje.setHours(0,0,0,0)
+      const datasReservadas = new Map()
+      reservas.forEach(r => datasReservadas.set(r.data, r))
+
+      html += `<div class="bg-gray-50 rounded-lg p-3">
+        <h4 class="text-center font-semibold text-verde text-sm mb-2">${nomeMes(m)} ${y}</h4>
+        <div class="grid grid-cols-7 gap-0.5 text-center text-[10px] text-gray-400 mb-1">
+          <div>D</div><div>S</div><div>T</div><div>Q</div><div>Q</div><div>S</div><div>S</div>
+        </div>
+        <div class="grid grid-cols-7 gap-0.5">`
+
+      for (let i = 0; i < firstDay; i++) html += '<div></div>'
+
+      for (let d = 1; d <= daysInMonth; d++) {
+        const date = new Date(y, m, d)
+        const iso = dataParaISO(date)
+        const reservado = datasReservadas.has(iso)
+        const isHoje = date.getTime() === hoje.getTime()
+        let cls = 'p-1 rounded text-xs text-center cursor-pointer transition-colors '
+        if (reservado) cls += 'bg-red-100 text-red-600 hover:bg-red-200'
+        else cls += 'hover:bg-verde/10 text-gray-600'
+        if (isHoje) cls += ' ring-1 ring-dourado'
+
+        html += `<div class="${cls}" onclick="window.admCalendarClick('${iso}')">${d}</div>`
+      }
+
+      html += '</div></div>'
+    }
+
+    container.innerHTML = html
+    document.getElementById('adm-agenda-label').textContent = `${nomeMes(admBaseMonth)} ${admBaseYear}`
+  }
+
+  function renderReservasTable() {
+    const tbody = document.getElementById('adm-reservas-tbody')
+    const hoje = dataParaISO(new Date())
+    const futuras = reservas.filter(r => r.data >= hoje).sort((a,b) => a.data.localeCompare(b.data))
+
+    if (futuras.length === 0) {
+      tbody.innerHTML = '<tr><td colspan="6" class="px-4 py-8 text-center text-gray-400">Nenhuma reserva futura.</td></tr>'
+      return
+    }
+
+    tbody.innerHTML = futuras.map(r => {
+      const pacotes = r.pacotes_selecionados || []
+      return `<tr class="border-t border-gray-50 hover:bg-gray-50">
+        <td class="px-4 py-3">${formatarData(r.data)}</td>
+        <td class="px-4 py-3">${diaSemana(r.data)}</td>
+        <td class="px-4 py-3">${r.cliente_nome || '—'}</td>
+        <td class="px-4 py-3">${r.valor_total ? formatarPreco(r.valor_total) : '—'}</td>
+        <td class="px-4 py-3 text-xs">${Array.isArray(pacotes) ? pacotes.map(p => p.nome || p).join(', ') : '—'}</td>
+        <td class="px-4 py-3">
+          <div class="flex gap-1">
+            ${r.cliente_email ? `<button onclick="window.reenviarEmail('${r.id}')" class="p-1 hover:bg-blue-50 rounded text-blue-500" title="Reenviar email">📧</button>` : ''}
+            <button onclick="window.removerReserva('${r.id}')" class="p-1 hover:bg-red-50 rounded text-red-500" title="Remover">🗑️</button>
+          </div>
+        </td>
+      </tr>`
+    }).join('')
+  }
+
+  window.admCalendarClick = function(iso) {
+    const reserva = reservas.find(r => r.data === iso)
+    if (reserva) {
+      const content = document.getElementById('detalhes-content')
+      content.innerHTML = `
+        <p><strong>Data:</strong> ${formatarData(reserva.data)} (${diaSemana(reserva.data)})</p>
+        <p><strong>Título:</strong> ${reserva.titulo}</p>
+        <p><strong>Cliente:</strong> ${reserva.cliente_nome || '—'}</p>
+        <p><strong>WhatsApp:</strong> ${reserva.cliente_whatsapp || '—'}</p>
+        <p><strong>Email:</strong> ${reserva.cliente_email || '—'}</p>
+        <p><strong>Tipo:</strong> ${reserva.tipo_evento || '—'}</p>
+        <p><strong>Convidados:</strong> ${reserva.num_convidados || '—'}</p>
+        <p><strong>Valor:</strong> ${reserva.valor_total ? formatarPreco(reserva.valor_total) : '—'}</p>
+        <p><strong>Observações:</strong> ${reserva.observacoes || '—'}</p>
+      `
+      document.getElementById('modal-detalhes-remove').onclick = () => window.removerReserva(reserva.id)
+      document.getElementById('modal-detalhes').classList.remove('hidden')
+    } else {
+      document.getElementById('reserva-data').value = iso
+      document.getElementById('modal-reserva-data').textContent = `Data: ${formatarData(iso)} (${diaSemana(iso)})`
+      document.getElementById('form-reserva').reset()
+      document.getElementById('reserva-data').value = iso
+      document.getElementById('modal-reserva').classList.remove('hidden')
+    }
+  }
+
+  document.getElementById('modal-reserva-cancel').addEventListener('click', () => {
+    document.getElementById('modal-reserva').classList.add('hidden')
+  })
+
+  document.getElementById('modal-detalhes-close').addEventListener('click', () => {
+    document.getElementById('modal-detalhes').classList.add('hidden')
+  })
+
+  document.getElementById('form-reserva').addEventListener('submit', async (e) => {
+    e.preventDefault()
+    try {
+      const reserva = {
+        data: document.getElementById('reserva-data').value,
+        titulo: document.getElementById('reserva-titulo').value,
+        cliente_nome: document.getElementById('reserva-nome').value || null,
+        cliente_email: document.getElementById('reserva-email').value || null,
+        cliente_whatsapp: document.getElementById('reserva-whatsapp').value || null,
+        tipo_evento: document.getElementById('reserva-tipo').value || null,
+        num_convidados: document.getElementById('reserva-convidados').value ? Number(document.getElementById('reserva-convidados').value) : null,
+        valor_total: document.getElementById('reserva-valor').value ? Number(document.getElementById('reserva-valor').value) : null,
+        observacoes: document.getElementById('reserva-obs').value || null,
+      }
+
+      const novaReserva = await db.reservas.adicionar(reserva)
+
+      if (document.getElementById('reserva-enviar-email').checked && reserva.cliente_email) {
+        await supabase.functions.invoke('notify-reserva', {
+          body: { reserva_id: novaReserva.id, enviar_cliente: true }
+        })
+      }
+
+      document.getElementById('modal-reserva').classList.add('hidden')
+      window.showToast('✅ Reserva adicionada!')
+      await loadAgenda()
+    } catch (err) {
+      window.showToast('❌ Erro ao salvar reserva', false)
+    }
+  })
+
+  window.removerReserva = async function(id) {
+    if (!confirm('Tem certeza que deseja remover esta reserva?')) return
+    try {
+      await db.reservas.remover(id)
+      document.getElementById('modal-detalhes').classList.add('hidden')
+      window.showToast('✅ Reserva removida!')
+      await loadAgenda()
+    } catch {
+      window.showToast('❌ Erro ao remover', false)
+    }
+  }
+
+  window.reenviarEmail = async function(id) {
+    try {
+      await supabase.functions.invoke('notify-reserva', {
+        body: { reserva_id: id, enviar_cliente: true }
+      })
+      window.showToast('✅ Email reenviado!')
+    } catch {
+      window.showToast('❌ Erro ao reenviar email', false)
+    }
+  }
+
+  document.getElementById('adm-agenda-prev').addEventListener('click', () => {
+    admBaseMonth--
+    if (admBaseMonth < 0) { admBaseMonth = 11; admBaseYear-- }
+    renderAdmCalendar()
+  })
+
+  document.getElementById('adm-agenda-next').addEventListener('click', () => {
+    admBaseMonth++
+    if (admBaseMonth > 11) { admBaseMonth = 0; admBaseYear++ }
+    renderAdmCalendar()
+  })
+
+  loadAgenda()
+</script>

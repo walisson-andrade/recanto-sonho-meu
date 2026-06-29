@@ -1,0 +1,114 @@
+<div class="admin-tab-panel hidden" data-tab="leads">
+  <h2 class="text-2xl font-bold text-verde mb-6">📋 Leads</h2>
+
+  <div class="bg-white rounded-xl shadow-sm border border-gray-100 overflow-hidden">
+    <div class="overflow-x-auto">
+      <table class="w-full text-sm">
+        <thead class="bg-gray-50 text-gray-600 text-xs uppercase">
+          <tr>
+            <th class="px-4 py-3 text-left">Nome</th>
+            <th class="px-4 py-3 text-left">Email</th>
+            <th class="px-4 py-3 text-left">WhatsApp</th>
+            <th class="px-4 py-3 text-left">Nascimento</th>
+            <th class="px-4 py-3 text-left">Tipo</th>
+            <th class="px-4 py-3 text-left">Data Início</th>
+            <th class="px-4 py-3 text-left">Data Fim</th>
+            <th class="px-4 py-3 text-left">Convidados</th>
+            <th class="px-4 py-3 text-left">Mensagem</th>
+            <th class="px-4 py-3 text-left">Recebido em</th>
+            <th class="px-4 py-3 text-left">Ações</th>
+          </tr>
+        </thead>
+        <tbody id="leads-tbody" class="divide-y divide-gray-100">
+          <tr><td colspan="11" class="px-4 py-8 text-center text-gray-400">Carregando...</td></tr>
+        </tbody>
+      </table>
+    </div>
+  </div>
+
+  <div id="leads-vazio" class="hidden py-12 text-center">
+    <div class="text-5xl mb-4">📋</div>
+    <p class="text-gray-400">Nenhum lead recebido.</p>
+  </div>
+</div>
+
+<script>
+  import { db } from '../../lib/supabase.js'
+
+  let leads = []
+
+  async function init() {
+    try {
+      leads = await db.leads.listar()
+    } catch {
+      leads = []
+    }
+    render()
+  }
+
+  function formatDate(dateStr) {
+    if (!dateStr) return '—'
+    try {
+      return new Date(dateStr).toLocaleDateString('pt-BR')
+    } catch {
+      return dateStr
+    }
+  }
+
+  function formatDateTime(dateStr) {
+    if (!dateStr) return '—'
+    try {
+      return new Date(dateStr).toLocaleString('pt-BR')
+    } catch {
+      return dateStr
+    }
+  }
+
+  function render() {
+    const tbody = document.getElementById('leads-tbody')
+    const vazio = document.getElementById('leads-vazio')
+
+    if (leads.length === 0) {
+      tbody.closest('table').parentElement.parentElement.classList.add('hidden')
+      vazio.classList.remove('hidden')
+      return
+    }
+
+    vazio.classList.add('hidden')
+    tbody.closest('table').parentElement.parentElement.classList.remove('hidden')
+
+    tbody.innerHTML = leads.map(l => `
+      <tr class="hover:bg-gray-50">
+        <td class="px-4 py-3 font-medium text-gray-900">${l.nome || '—'}</td>
+        <td class="px-4 py-3 text-gray-600">${l.email || '—'}</td>
+        <td class="px-4 py-3 text-gray-600">${l.whatsapp || '—'}</td>
+        <td class="px-4 py-3 text-gray-600">${formatDate(l.data_nascimento)}</td>
+        <td class="px-4 py-3 text-gray-600">${l.tipo_evento || '—'}</td>
+        <td class="px-4 py-3 text-gray-600">${formatDate(l.data_inicio)}</td>
+        <td class="px-4 py-3 text-gray-600">${formatDate(l.data_fim)}</td>
+        <td class="px-4 py-3 text-gray-600">${l.num_convidados || '—'}</td>
+        <td class="px-4 py-3 text-gray-600 max-w-xs truncate">${l.mensagem || '—'}</td>
+        <td class="px-4 py-3 text-gray-600">${formatDateTime(l.created_at)}</td>
+        <td class="px-4 py-3">
+          <button class="lead-del text-red-500 hover:text-red-700 text-xs font-semibold" data-id="${l.id}">Excluir</button>
+        </td>
+      </tr>
+    `).join('')
+
+    document.querySelectorAll('.lead-del').forEach(btn => {
+      btn.addEventListener('click', async () => {
+        if (!confirm('Excluir este lead?')) return
+        try {
+          await db.leads.remover(btn.dataset.id)
+          leads = leads.filter(l => l.id !== btn.dataset.id)
+          render()
+          window.showToast('✅ Lead excluído!')
+        } catch {
+          window.showToast('❌ Erro ao excluir lead', false)
+        }
+      })
+    })
+  }
+
+  init()
+</script>

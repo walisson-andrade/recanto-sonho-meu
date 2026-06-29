@@ -1,0 +1,104 @@
+<nav id="nav" class="fixed top-0 left-0 right-0 z-50 transition-all duration-300">
+  <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+    <div class="flex items-center justify-between h-16">
+      <!-- Logo -->
+      <a href="#" class="nav-logo font-display text-xl font-bold text-white">
+        Recanto <span class="nav-logo-accent text-champagne">Sonho Meu</span>
+      </a>
+
+      <!-- Links desktop -->
+      <div class="hidden md:flex items-center gap-6">
+        <a href="#sobre" class="nav-link text-sm font-medium text-white/90 hover:text-white transition-colors">Sobre</a>
+        <a href="#estrutura" class="nav-link text-sm font-medium text-white/90 hover:text-white transition-colors">Estrutura</a>
+        <a href="#galeria" class="nav-link text-sm font-medium text-white/90 hover:text-white transition-colors">Galeria</a>
+        <a href="#depoimentos" class="nav-link text-sm font-medium text-white/90 hover:text-white transition-colors">Depoimentos</a>
+        <a href="#contato" class="nav-link text-sm font-medium text-white/90 hover:text-white transition-colors">Contato</a>
+        <a href="#calculadora"
+          class="bg-verde text-white px-5 py-2 rounded-full text-sm font-semibold hover:bg-verde-claro transition-colors">
+          📅 Reservar
+        </a>
+      </div>
+
+      <!-- Hambúrguer mobile -->
+      <button id="menu-toggle" class="md:hidden p-2 text-white" aria-label="Abrir menu">
+        <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+          <path id="menu-icon-open" stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16M4 18h16" />
+          <path id="menu-icon-close" stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" class="hidden" />
+        </svg>
+      </button>
+    </div>
+
+    <!-- Menu mobile -->
+    <div id="mobile-menu" class="md:hidden hidden pb-4">
+      <div class="flex flex-col gap-2">
+        <a href="#sobre" class="nav-link-mobile px-4 py-2 text-sm font-medium text-white/90 hover:bg-white/10 rounded-lg">Sobre</a>
+        <a href="#estrutura" class="nav-link-mobile px-4 py-2 text-sm font-medium text-white/90 hover:bg-white/10 rounded-lg">Estrutura</a>
+        <a href="#galeria" class="nav-link-mobile px-4 py-2 text-sm font-medium text-white/90 hover:bg-white/10 rounded-lg">Galeria</a>
+        <a href="#depoimentos" class="nav-link-mobile px-4 py-2 text-sm font-medium text-white/90 hover:bg-white/10 rounded-lg">Depoimentos</a>
+        <a href="#contato" class="nav-link-mobile px-4 py-2 text-sm font-medium text-white/90 hover:bg-white/10 rounded-lg">Contato</a>
+        <a href="#calculadora"
+          class="mx-4 mt-2 bg-verde text-white px-5 py-2 rounded-full text-sm font-semibold text-center hover:bg-verde-claro transition-colors">
+          📅 Reservar
+        </a>
+      </div>
+    </div>
+  </div>
+</nav>
+
+<script>
+  const nav = document.getElementById('nav')
+  const menuToggle = document.getElementById('menu-toggle')
+  const mobileMenu = document.getElementById('mobile-menu')
+  const iconOpen = document.getElementById('menu-icon-open')
+  const iconClose = document.getElementById('menu-icon-close')
+
+  // Backdrop blur ao rolar + troca de cor do texto
+  const navLinks = document.querySelectorAll('.nav-link')
+  const navLinksMobile = document.querySelectorAll('.nav-link-mobile')
+  const navLogo = document.querySelector('.nav-logo')
+  const navLogoAccent = document.querySelector('.nav-logo-accent')
+
+  function updateNavColors(scrolled) {
+    if (scrolled) {
+      nav.classList.add('bg-white/90', 'backdrop-blur-md', 'shadow-sm')
+      navLogo.classList.remove('text-white')
+      navLogo.classList.add('text-verde')
+      navLogoAccent.classList.remove('text-champagne')
+      navLogoAccent.classList.add('text-dourado')
+      navLinks.forEach(l => { l.classList.remove('text-white/90'); l.classList.add('text-gray-700'); l.classList.remove('hover:text-white'); l.classList.add('hover:text-verde') })
+      navLinksMobile.forEach(l => { l.classList.remove('text-white/90', 'hover:bg-white/10'); l.classList.add('text-gray-700', 'hover:bg-verde/5') })
+      menuToggle.classList.remove('text-white')
+      menuToggle.classList.add('text-verde')
+    } else {
+      nav.classList.remove('bg-white/90', 'backdrop-blur-md', 'shadow-sm')
+      navLogo.classList.remove('text-verde')
+      navLogo.classList.add('text-white')
+      navLogoAccent.classList.remove('text-dourado')
+      navLogoAccent.classList.add('text-champagne')
+      navLinks.forEach(l => { l.classList.remove('text-gray-700'); l.classList.add('text-white/90'); l.classList.remove('hover:text-verde'); l.classList.add('hover:text-white') })
+      navLinksMobile.forEach(l => { l.classList.remove('text-gray-700', 'hover:bg-verde/5'); l.classList.add('text-white/90', 'hover:bg-white/10') })
+      menuToggle.classList.remove('text-verde')
+      menuToggle.classList.add('text-white')
+    }
+  }
+
+  window.addEventListener('scroll', () => {
+    updateNavColors(window.scrollY > 50)
+  })
+
+  // Toggle menu mobile
+  menuToggle.addEventListener('click', () => {
+    const open = mobileMenu.classList.toggle('hidden')
+    iconOpen.classList.toggle('hidden')
+    iconClose.classList.toggle('hidden')
+  })
+
+  // Fechar menu ao clicar em link
+  mobileMenu.querySelectorAll('a').forEach(link => {
+    link.addEventListener('click', () => {
+      mobileMenu.classList.add('hidden')
+      iconOpen.classList.remove('hidden')
+      iconClose.classList.add('hidden')
+    })
+  })
+</script>

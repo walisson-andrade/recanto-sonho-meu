@@ -1,0 +1,166 @@
+<div class="admin-tab-panel hidden" data-tab="fotos">
+  <h2 class="text-2xl font-bold text-verde mb-6">📸 Fotos</h2>
+
+  <!-- Upload -->
+  <div id="fotos-dropzone"
+    class="bg-white rounded-xl p-8 shadow-sm border-2 border-dashed border-gray-300 hover:border-verde transition-colors text-center mb-8 cursor-pointer">
+    <div class="text-4xl mb-3">📤</div>
+    <p class="text-gray-500 font-medium">Arraste fotos aqui ou clique para selecionar</p>
+    <p class="text-gray-400 text-xs mt-1">JPG, PNG, múltiplos arquivos</p>
+    <input type="file" id="fotos-input" accept="image/*" multiple class="hidden" />
+  </div>
+
+  <!-- Preview de upload -->
+  <div id="fotos-preview" class="hidden mb-8">
+    <h3 class="font-semibold text-verde mb-3">Preparando upload</h3>
+    <div id="fotos-preview-grid" class="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 gap-4"></div>
+    <button id="fotos-upload-btn" class="mt-4 bg-verde text-white px-6 py-2 rounded-lg font-semibold hover:bg-verde-claro">
+      Fazer upload
+    </button>
+  </div>
+
+  <!-- Grid de fotos existentes -->
+  <div id="fotos-grid" class="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 gap-4">
+    <div class="skeleton h-40 rounded-xl"></div>
+  </div>
+
+  <div id="fotos-vazio" class="hidden text-center py-8 text-gray-400">
+    Nenhuma foto cadastrada.
+  </div>
+</div>
+
+<script>
+  import { db } from '../../lib/supabase.js'
+
+  let fotos = []
+  let pendingFiles = []
+
+  async function loadFotos() {
+    try {
+      fotos = await db.fotos.listar()
+    } catch { fotos = [] }
+    renderFotos()
+  }
+
+  function renderFotos() {
+    const grid = document.getElementById('fotos-grid')
+    const vazio = document.getElementById('fotos-vazio')
+
+    if (fotos.length === 0) {
+      grid.classList.add('hidden')
+      vazio.classList.remove('hidden')
+      return
+    }
+
+    grid.classList.remove('hidden')
+    vazio.classList.add('hidden')
+
+    grid.innerHTML = fotos.map(f => `
+      <div class="relative group rounded-xl overflow-hidden bg-gray-100 border border-gray-200" draggable="true" data-id="${f.id}">
+        <img src="${f.url}" alt="${f.legenda || ''}" class="w-full h-40 object-cover" loading="lazy" />
+        <div class="absolute inset-0 bg-black/50 opacity-0 group-hover:opacity-100 transition-opacity flex flex-col items-center justify-center gap-2 p-2">
+          <input type="text" value="${f.legenda || ''}" placeholder="Legenda"
+            class="w-full px-2 py-1 rounded text-xs bg-white/90 text-gray-800"
+            onchange="window.updateFotoLegenda('${f.id}', this.value)" />
+          <select class="w-full px-2 py-1 rounded text-xs bg-white/90 text-gray-800"
+            onchange="window.updateFotoCategoria('${f.id}', this.value)">
+            <option value="geral" ${f.categoria === 'geral' ? 'selected' : ''}>Espaço</option>
+            <option value="casamentos" ${f.categoria === 'casamentos' ? 'selected' : ''}>Casamentos</option>
+            <option value="festas" ${f.categoria === 'festas' ? 'selected' : ''}>Festas</option>
+            <option value="confraternizacoes" ${f.categoria === 'confraternizacoes' ? 'selected' : ''}>Confraternizações</option>
+          </select>
+          <button onclick="window.removerFoto('${f.id}')" class="text-red-300 hover:text-red-100 text-xs">🗑️ Remover</button>
+        </div>
+      </div>
+    `).join('')
+  }
+
+  // Dropzone
+  const dropzone = document.getElementById('fotos-dropzone')
+  const fileInput = document.getElementById('fotos-input')
+
+  dropzone.addEventListener('click', () => fileInput.click())
+  dropzone.addEventListener('dragover', (e) => { e.preventDefault(); dropzone.classList.add('border-verde', 'bg-verde/5') })
+  dropzone.addEventListener('dragleave', () => dropzone.classList.remove('border-verde', 'bg-verde/5'))
+  dropzone.addEventListener('drop', (e) => {
+    e.preventDefault()
+    dropzone.classList.remove('border-verde', 'bg-verde/5')
+    handleFiles(e.dataTransfer.files)
+  })
+  fileInput.addEventListener('change', () => handleFiles(fileInput.files))
+
+  function handleFiles(files) {
+    pendingFiles = [...files]
+    const previewGrid = document.getElementById('fotos-preview-grid')
+    const preview = document.getElementById('fotos-preview')
+
+    previewGrid.innerHTML = pendingFiles.map((f, i) => {
+      const url = URL.createObjectURL(f)
+      return `
+        <div class="relative rounded-xl overflow-hidden bg-gray-100">
+          <img src="${url}" class="w-full h-32 object-cover" />
+          <div class="p-2">
+            <input type="text" placeholder="Legenda" class="preview-legenda w-full px-2 py-1 border rounded text-xs" data-i="${i}" />
+            <select class="preview-cat w-full px-2 py-1 border rounded text-xs mt-1" data-i="${i}">
+              <option value="geral">Espaço</option>
+              <option value="casamentos">Casamentos</option>
+              <option value="festas">Festas</option>
+              <option value="confraternizacoes">Confraternizações</option>
+            </select>
+          </div>
+        </div>
+      `
+    }).join('')
+
+    preview.classList.remove('hidden')
+  }
+
+  document.getElementById('fotos-upload-btn').addEventListener('click', async () => {
+    const btn = document.getElementById('fotos-upload-btn')
+    btn.disabled = true
+    btn.textContent = 'Enviando...'
+
+    try {
+      for (let i = 0; i < pendingFiles.length; i++) {
+        const legenda = document.querySelector(`.preview-legenda[data-i="${i}"]`)?.value || null
+        const categoria = document.querySelector(`.preview-cat[data-i="${i}"]`)?.value || 'geral'
+        const url = await db.fotos.upload(pendingFiles[i])
+        await db.fotos.adicionar({ url, legenda, categoria, ordem: fotos.length + i })
+      }
+
+      pendingFiles = []
+      document.getElementById('fotos-preview').classList.add('hidden')
+      window.showToast('✅ Fotos enviadas!')
+      await loadFotos()
+    } catch {
+      window.showToast('❌ Erro ao enviar fotos', false)
+    } finally {
+      btn.disabled = false
+      btn.textContent = 'Fazer upload'
+    }
+  })
+
+  window.updateFotoLegenda = async function(id, legenda) {
+    try {
+      await db.fotos.atualizar(id, { legenda })
+    } catch { window.showToast('❌ Erro ao atualizar', false) }
+  }
+
+  window.updateFotoCategoria = async function(id, categoria) {
+    try {
+      await db.fotos.atualizar(id, { categoria })
+      window.showToast('✅ Categoria atualizada')
+    } catch { window.showToast('❌ Erro ao atualizar', false) }
+  }
+
+  window.removerFoto = async function(id) {
+    if (!confirm('Remover esta foto?')) return
+    try {
+      await db.fotos.remover(id)
+      window.showToast('✅ Foto removida!')
+      await loadFotos()
+    } catch { window.showToast('❌ Erro ao remover', false) }
+  }
+
+  loadFotos()
+</script>

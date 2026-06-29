@@ -1,0 +1,179 @@
+<section id="agenda" class="py-20 bg-creme">
+  <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+    <div class="text-center mb-12 fade-in">
+      <h2 class="font-display text-3xl sm:text-4xl font-bold text-verde mb-4">
+        Agenda de Disponibilidade
+      </h2>
+      <p class="text-gray-500 max-w-2xl mx-auto">
+        Veja as datas livres e reserve a sua. Dias em vermelho já estão ocupados.
+      </p>
+    </div>
+
+    <div id="agenda-container" class="fade-in">
+      <!-- Navegação -->
+      <div class="flex items-center justify-center gap-4 mb-6">
+        <button id="agenda-prev" class="p-2 hover:bg-verde/10 rounded-lg text-verde">&larr;</button>
+        <span id="agenda-label" class="font-display text-lg font-bold text-verde"></span>
+        <button id="agenda-next" class="p-2 hover:bg-verde/10 rounded-lg text-verde">&rarr;</button>
+      </div>
+
+      <!-- Calendários -->
+      <div class="grid md:grid-cols-2 gap-6">
+        <div class="bg-white rounded-xl p-4 shadow-sm border border-gray-100">
+          <h4 id="agenda-month1-label" class="text-center font-semibold text-verde mb-3"></h4>
+          <div class="grid grid-cols-7 gap-1 text-center text-xs text-gray-400 mb-2">
+            <div>Dom</div><div>Seg</div><div>Ter</div><div>Qua</div><div>Qui</div><div>Sex</div><div>Sáb</div>
+          </div>
+          <div id="agenda-month1" class="grid grid-cols-7 gap-1"></div>
+        </div>
+        <div class="hidden md:block bg-white rounded-xl p-4 shadow-sm border border-gray-100">
+          <h4 id="agenda-month2-label" class="text-center font-semibold text-verde mb-3"></h4>
+          <div class="grid grid-cols-7 gap-1 text-center text-xs text-gray-400 mb-2">
+            <div>Dom</div><div>Seg</div><div>Ter</div><div>Qua</div><div>Qui</div><div>Sex</div><div>Sáb</div>
+          </div>
+          <div id="agenda-month2" class="grid grid-cols-7 gap-1"></div>
+        </div>
+      </div>
+
+      <!-- Legenda -->
+      <div class="flex items-center justify-center gap-6 mt-6 text-sm text-gray-500">
+        <div class="flex items-center gap-2">
+          <div class="w-4 h-4 rounded bg-green-100 border border-green-300"></div> Disponível
+        </div>
+        <div class="flex items-center gap-2">
+          <div class="w-4 h-4 rounded bg-red-100 border border-red-300"></div> Reservado
+        </div>
+        <div class="flex items-center gap-2">
+          <div class="w-4 h-4 rounded border-2 border-dourado"></div> Hoje
+        </div>
+      </div>
+    </div>
+
+    <!-- Modal de confirmação -->
+    <div id="agenda-modal" class="fixed inset-0 z-50 flex items-center justify-center bg-black/50 hidden">
+      <div class="bg-white rounded-2xl p-6 max-w-md mx-4 shadow-2xl">
+        <h3 class="font-display text-xl font-bold text-verde mb-2">Reservar esta data?</h3>
+        <p id="agenda-modal-info" class="text-gray-600 mb-6"></p>
+        <div class="flex gap-3">
+          <button id="agenda-modal-cancel"
+            class="flex-1 py-2 rounded-lg border border-gray-300 text-gray-600 hover:bg-gray-50">Cancelar</button>
+          <a id="agenda-modal-whatsapp" href="#" target="_blank" rel="noopener"
+            class="flex-1 py-2 rounded-lg bg-green-600 text-white text-center font-semibold hover:bg-green-700">
+            Falar no WhatsApp
+          </a>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<script>
+  import { db } from '../../lib/supabase.js'
+  import { nomeMes, dataParaISO, calcularPrecoData, formatarPreco, formatarDataExtenso, gerarUrlWhatsApp, diaSemana } from '../../lib/helpers.js'
+
+  let precosSemana = []
+  let datasEspeciais = []
+  let reservas = []
+  let config = {}
+  let baseMonth = new Date().getMonth()
+  let baseYear = new Date().getFullYear()
+
+  async function init() {
+    try {
+      ;[precosSemana, datasEspeciais, reservas, config] = await Promise.all([
+        db.precos.listar(),
+        db.datasEspeciais.listar(),
+        db.reservas.listar(),
+        db.config.listar()
+      ])
+    } catch { /* fallback sem dados */ }
+
+    render()
+    setupNav()
+  }
+
+  function renderMonth(containerId, labelId, year, month) {
+    document.getElementById(labelId).textContent = `${nomeMes(month)} ${year}`
+    const container = document.getElementById(containerId)
+    const firstDay = new Date(year, month, 1).getDay()
+    const daysInMonth = new Date(year, month + 1, 0).getDate()
+    const hoje = new Date()
+    hoje.setHours(0, 0, 0, 0)
+    const datasReservadas = new Map()
+    reservas.forEach(r => datasReservadas.set(r.data, r.titulo))
+
+    let html = ''
+    for (let i = 0; i < firstDay; i++) html += '<div></div>'
+
+    for (let d = 1; d <= daysInMonth; d++) {
+      const date = new Date(year, month, d)
+      const iso = dataParaISO(date)
+      const passado = date < hoje
+      const reservado = datasReservadas.has(iso)
+      const isHoje = date.getTime() === hoje.getTime()
+      const info = calcularPrecoData(iso, precosSemana, datasEspeciais)
+
+      let classes = 'relative p-2 rounded-lg text-center text-sm transition-colors '
+
+      if (passado) {
+        classes += 'text-gray-300'
+      } else if (reservado) {
+        classes += 'bg-red-50 text-red-400 cursor-default'
+        if (isHoje) classes += ' ring-2 ring-dourado'
+        html += `<div class="${classes}" title="${datasReservadas.get(iso)}">
+          <div class="line-through">${d}</div>
+        </div>`
+        continue
+      } else {
+        classes += 'bg-green-50 hover:bg-green-100 text-gray-700 cursor-pointer'
+        if (isHoje) classes += ' ring-2 ring-dourado'
+      }
+
+      html += `<div class="${classes}" ${!passado && !reservado ? `onclick="window.openAgendaModal('${iso}')"` : ''}>
+        <div class="font-medium">${d}</div>
+        ${!passado ? `<div class="text-[10px] text-verde-claro font-medium">${formatarPreco(info.preco).replace('R$ ', 'R$')}</div>` : ''}
+      </div>`
+    }
+
+    container.innerHTML = html
+  }
+
+  function render() {
+    renderMonth('agenda-month1', 'agenda-month1-label', baseYear, baseMonth)
+    let m2 = baseMonth + 1, y2 = baseYear
+    if (m2 > 11) { m2 = 0; y2++ }
+    renderMonth('agenda-month2', 'agenda-month2-label', y2, m2)
+    document.getElementById('agenda-label').textContent = `${nomeMes(baseMonth)} ${baseYear}`
+  }
+
+  function setupNav() {
+    document.getElementById('agenda-prev').addEventListener('click', () => {
+      baseMonth--
+      if (baseMonth < 0) { baseMonth = 11; baseYear-- }
+      render()
+    })
+    document.getElementById('agenda-next').addEventListener('click', () => {
+      baseMonth++
+      if (baseMonth > 11) { baseMonth = 0; baseYear++ }
+      render()
+    })
+    document.getElementById('agenda-modal-cancel').addEventListener('click', () => {
+      document.getElementById('agenda-modal').classList.add('hidden')
+    })
+  }
+
+  window.openAgendaModal = function(iso) {
+    const info = calcularPrecoData(iso, precosSemana, datasEspeciais)
+    const modal = document.getElementById('agenda-modal')
+    document.getElementById('agenda-modal-info').textContent =
+      `${formatarDataExtenso(iso)} (${diaSemana(iso)}) — ${formatarPreco(info.preco)}`
+
+    const msg = `Olá! Gostaria de reservar o espaço para o dia ${formatarDataExtenso(iso)} (${diaSemana(iso)}). Valor: ${formatarPreco(info.preco)}`
+    document.getElementById('agenda-modal-whatsapp').href =
+      gerarUrlWhatsApp(config.whatsapp || '5534999763010', msg)
+
+    modal.classList.remove('hidden')
+  }
+
+  init()
+</script>

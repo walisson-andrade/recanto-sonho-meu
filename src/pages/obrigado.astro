@@ -1,0 +1,52 @@
+---
+import Base from '../layouts/Base.astro'
+---
+
+<Base title="Obrigada! - Recanto Sonho Meu" description="Recebemos sua solicitação.">
+  <div class="min-h-screen flex items-center justify-center bg-gradient-to-br from-verde to-verde-claro px-4">
+    <div class="text-center max-w-lg">
+      <div class="text-7xl mb-6">🎉</div>
+      <h1 id="obrigado-titulo" class="font-display text-3xl sm:text-4xl font-bold text-white mb-4">
+        Obrigada! Entraremos em contato em breve.
+      </h1>
+      <p class="text-white/80 mb-8">
+        Recebemos sua solicitação e responderemos o mais rápido possível.
+      </p>
+
+      <div class="flex flex-col sm:flex-row items-center justify-center gap-4">
+        <a href="/"
+          class="bg-white text-verde px-6 py-3 rounded-full font-semibold hover:bg-champagne transition-colors">
+          Voltar ao início
+        </a>
+        <a id="obrigado-whatsapp" href="#" target="_blank" rel="noopener"
+          class="bg-green-600 text-white px-6 py-3 rounded-full font-semibold hover:bg-green-700 transition-colors">
+          Falar no WhatsApp agora
+        </a>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    import { db } from '../lib/supabase.js'
+
+    const params = new URLSearchParams(window.location.search)
+    const nome = params.get('nome')
+    const data = params.get('data')
+
+    if (nome) {
+      document.getElementById('obrigado-titulo').textContent =
+        `Obrigada, ${nome}! Entraremos em contato em breve.`
+    }
+
+    async function init() {
+      try {
+        const config = await db.config.listar()
+        if (config.whatsapp) {
+          document.getElementById('obrigado-whatsapp').href = `https://wa.me/${config.whatsapp}`
+        }
+      } catch {}
+    }
+
+    init()
+  </script>
+</Base>

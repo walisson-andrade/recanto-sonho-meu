@@ -1,0 +1,471 @@
+<section id="calculadora" class="py-20 bg-white">
+  <div class="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8">
+    <div class="text-center mb-12 fade-in">
+      <h2 class="font-display text-3xl sm:text-4xl font-bold text-verde mb-4">
+        Reserve sua Data
+      </h2>
+      <p class="text-gray-500 max-w-2xl mx-auto">
+        Selecione o período, monte seu pacote e confirme sua reserva pelo WhatsApp.
+      </p>
+    </div>
+
+    <div class="grid lg:grid-cols-5 gap-8 fade-in">
+      <!-- Calendário (3 cols) -->
+      <div class="lg:col-span-3">
+        <div class="bg-creme rounded-2xl p-4 sm:p-6 shadow-lg border border-gray-100">
+          <!-- Navegação -->
+          <div class="flex items-center justify-between mb-4">
+            <button id="calc-prev-month" class="p-2 hover:bg-verde/10 rounded-lg text-verde">&larr;</button>
+            <span id="calc-month-label" class="font-display text-lg font-bold text-verde"></span>
+            <button id="calc-next-month" class="p-2 hover:bg-verde/10 rounded-lg text-verde">&rarr;</button>
+          </div>
+
+          <!-- Calendários -->
+          <div class="grid md:grid-cols-2 gap-4">
+            <div class="bg-white rounded-xl p-3 border border-gray-100">
+              <h4 id="cal-month1-label" class="text-center font-semibold text-verde text-sm mb-2"></h4>
+              <div class="grid grid-cols-7 gap-0.5 text-center text-xs text-gray-400 mb-1">
+                <div>Dom</div><div>Seg</div><div>Ter</div><div>Qua</div><div>Qui</div><div>Sex</div><div>Sáb</div>
+              </div>
+              <div id="cal-month1" class="grid grid-cols-7 gap-0.5"></div>
+            </div>
+            <div class="bg-white rounded-xl p-3 border border-gray-100">
+              <h4 id="cal-month2-label" class="text-center font-semibold text-verde text-sm mb-2"></h4>
+              <div class="grid grid-cols-7 gap-0.5 text-center text-xs text-gray-400 mb-1">
+                <div>Dom</div><div>Seg</div><div>Ter</div><div>Qua</div><div>Qui</div><div>Sex</div><div>Sáb</div>
+              </div>
+              <div id="cal-month2" class="grid grid-cols-7 gap-0.5"></div>
+            </div>
+          </div>
+
+          <!-- Legenda -->
+          <div class="flex flex-wrap items-center justify-center gap-4 mt-4 text-xs text-gray-500">
+            <div class="flex items-center gap-1.5">
+              <div class="w-3 h-3 rounded bg-green-100 border border-green-300"></div> Disponível
+            </div>
+            <div class="flex items-center gap-1.5">
+              <div class="w-3 h-3 rounded bg-red-100 border border-red-300"></div> Reservado
+            </div>
+            <div class="flex items-center gap-1.5">
+              <div class="w-3 h-3 rounded bg-verde/20 border border-verde"></div> Selecionado
+            </div>
+            <div class="flex items-center gap-1.5">
+              <div class="w-3 h-3 rounded border-2 border-dourado"></div> Hoje
+            </div>
+          </div>
+
+          <!-- Info seleção -->
+          <p id="calc-range-info" class="text-center text-sm text-gray-500 mt-3">
+            Clique em uma data de início e depois na data final
+          </p>
+
+          <!-- Regras do espaço -->
+          <div id="calc-regras" class="mt-4 bg-amber-50 border border-amber-200 rounded-xl p-3 text-xs text-amber-800 space-y-1">
+          </div>
+        </div>
+      </div>
+
+      <!-- Painel lateral (2 cols) -->
+      <div class="lg:col-span-2 space-y-6">
+        <!-- Tipo de evento -->
+        <div>
+          <h3 class="font-display text-sm font-bold text-verde mb-3 flex items-center gap-2">
+            <span class="bg-verde text-white w-6 h-6 rounded-full flex items-center justify-center text-xs">1</span>
+            Tipo de evento
+          </h3>
+          <div class="grid grid-cols-3 gap-2">
+            <button class="calc-tipo-btn p-3 rounded-xl border-2 border-gray-200 hover:border-verde text-center transition-colors" data-tipo="Casamento">
+              <div class="text-xl mb-0.5">💍</div>
+              <div class="text-xs font-medium">Casamento</div>
+            </button>
+            <button class="calc-tipo-btn p-3 rounded-xl border-2 border-gray-200 hover:border-verde text-center transition-colors" data-tipo="Festa">
+              <div class="text-xl mb-0.5">🎉</div>
+              <div class="text-xs font-medium">Festa</div>
+            </button>
+            <button class="calc-tipo-btn p-3 rounded-xl border-2 border-gray-200 hover:border-verde text-center transition-colors" data-tipo="Confraternização">
+              <div class="text-xl mb-0.5">🤝</div>
+              <div class="text-xs font-medium">Confra.</div>
+            </button>
+          </div>
+        </div>
+
+        <!-- Convidados -->
+        <div>
+          <h3 class="font-display text-sm font-bold text-verde mb-3 flex items-center gap-2">
+            <span class="bg-verde text-white w-6 h-6 rounded-full flex items-center justify-center text-xs">2</span>
+            Número de convidados
+          </h3>
+          <input type="number" id="calc-convidados" min="1" max="200" value="50" inputmode="numeric" pattern="[0-9]*"
+            class="w-full px-4 py-2.5 rounded-xl border border-gray-200 focus:ring-2 focus:ring-verde focus:border-verde" />
+        </div>
+
+        <!-- Pacotes -->
+        <div>
+          <h3 class="font-display text-sm font-bold text-verde mb-3 flex items-center gap-2">
+            <span class="bg-verde text-white w-6 h-6 rounded-full flex items-center justify-center text-xs">3</span>
+            Pacotes adicionais
+          </h3>
+          <div id="calc-pacotes" class="space-y-2">
+            <div class="skeleton h-10 rounded-xl"></div>
+          </div>
+        </div>
+
+        <!-- Resumo -->
+        <div class="bg-creme rounded-2xl p-5 border-2 border-dashed border-dourado/30">
+          <div id="calc-resumo" class="space-y-1.5 text-sm">
+            <p class="text-gray-400 text-center">Selecione as datas no calendário</p>
+          </div>
+          <div class="mt-4 pt-3 border-t border-dourado/20">
+            <span class="text-xs text-gray-500">Total estimado</span>
+            <div id="calc-total" class="text-2xl font-bold text-verde">R$ 0</div>
+          </div>
+          <a id="calc-whatsapp-btn" href="#" target="_blank" rel="noopener"
+            class="mt-4 block text-center bg-green-600 text-white px-6 py-3 rounded-full font-semibold hover:bg-green-700 transition-colors opacity-50 pointer-events-none">
+            Confirmar reserva
+          </a>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<script>
+  import { db } from '../../lib/supabase.js'
+  import { formatarPreco, calcularPrecoData, nomeMes, dataParaISO, gerarUrlWhatsApp, diaSemana, formatarDataExtenso } from '../../lib/helpers.js'
+
+  let precosSemana = []
+  let datasEspeciais = []
+  let reservas = []
+  let pacotesData = []
+  let config = {}
+  let currentMonth = new Date().getMonth()
+  let currentYear = new Date().getFullYear()
+
+  let rangeStart = null
+  let rangeEnd = null
+  let selectedTipo = null
+  let selectedPacotes = {}
+
+  async function init() {
+    try {
+      ;[precosSemana, datasEspeciais, reservas, pacotesData, config] = await Promise.all([
+        db.precos.listar(),
+        db.datasEspeciais.listar(),
+        db.reservas.listar(),
+        db.pacotes.listar(),
+        db.config.listar()
+      ])
+    } catch {}
+
+    const regrasEl = document.getElementById('calc-regras')
+    if (regrasEl) {
+      const horario = config.horario_diaria || '14h às 22h'
+      const regrasRaw = config.regras_espaco || 'Proibido som automotivo'
+      const regrasArr = typeof regrasRaw === 'string' ? regrasRaw.split(';;').filter(r => r.trim()) : (Array.isArray(regrasRaw) ? regrasRaw : [regrasRaw])
+      regrasEl.innerHTML = `
+        <p><strong>⏰ Horário da diária:</strong> ${horario}</p>
+        <p><strong>📋 Regras:</strong></p>
+        <ul class="list-disc list-inside">${regrasArr.map(r => `<li>${r}</li>`).join('')}</ul>
+      `
+    }
+
+    renderCalendars()
+    renderPacotes()
+    setupNav()
+    setupTipos()
+
+    document.getElementById('calc-convidados').addEventListener('input', (e) => {
+      e.target.value = e.target.value.replace(/[^0-9]/g, '')
+      updateResumo()
+    })
+  }
+
+  function renderCalendars() {
+    let m2 = currentMonth + 1, y2 = currentYear
+    if (m2 > 11) { m2 = 0; y2++ }
+    document.getElementById('calc-month-label').textContent = `${nomeMes(currentMonth)} ${currentYear}`
+    renderMonth('cal-month1', 'cal-month1-label', currentYear, currentMonth)
+    renderMonth('cal-month2', 'cal-month2-label', y2, m2)
+  }
+
+  function renderMonth(containerId, labelId, year, month) {
+    document.getElementById(labelId).textContent = `${nomeMes(month)} ${year}`
+    const container = document.getElementById(containerId)
+    const firstDay = new Date(year, month, 1).getDay()
+    const daysInMonth = new Date(year, month + 1, 0).getDate()
+    const hoje = new Date()
+    hoje.setHours(0, 0, 0, 0)
+    const datasReservadas = new Map()
+    reservas.forEach(r => datasReservadas.set(r.data, r.titulo))
+
+    let html = ''
+    for (let i = 0; i < firstDay; i++) html += '<div></div>'
+
+    for (let d = 1; d <= daysInMonth; d++) {
+      const date = new Date(year, month, d)
+      const iso = dataParaISO(date)
+      const passado = date < hoje
+      const reservado = datasReservadas.has(iso)
+      const isHoje = date.getTime() === hoje.getTime()
+      const info = calcularPrecoData(iso, precosSemana, datasEspeciais)
+      const inRange = isInRange(iso)
+      const isStart = rangeStart === iso
+      const isEnd = rangeEnd === iso
+
+      let classes = 'relative p-2 rounded-lg text-center transition-colors '
+
+      if (passado) {
+        classes += 'text-gray-300 cursor-not-allowed'
+      } else if (reservado) {
+        classes += 'bg-red-50 text-red-400 cursor-not-allowed'
+        html += `<div class="${classes}${isHoje ? ' ring-2 ring-dourado' : ''}" title="${datasReservadas.get(iso)}">
+          <div class="line-through">${d}</div>
+        </div>`
+        continue
+      } else if (isStart || isEnd) {
+        classes += 'bg-verde text-white cursor-pointer'
+      } else if (inRange) {
+        classes += 'bg-verde/20 text-verde cursor-pointer'
+      } else {
+        classes += 'bg-green-50 hover:bg-green-100 text-gray-700 cursor-pointer'
+      }
+
+      if (isHoje) classes += ' ring-2 ring-dourado'
+
+      const precoCompacto = info.preco >= 1000 ? `R$${(info.preco / 1000).toFixed(1).replace('.0', '')}k` : `R$${Math.round(info.preco)}`
+      html += `<div class="${classes} overflow-hidden" onclick="window.selectCalcDate('${iso}')">
+        <div class="font-semibold text-sm">${d}</div>
+        ${!passado ? `<div class="text-[8px] ${isStart || isEnd ? 'text-white/80' : inRange ? 'text-verde' : 'text-verde-claro'} font-medium leading-tight mt-0.5 whitespace-nowrap">${precoCompacto}</div>` : ''}
+      </div>`
+    }
+
+    container.innerHTML = html
+  }
+
+  function isInRange(iso) {
+    if (!rangeStart || !rangeEnd) return false
+    return iso >= rangeStart && iso <= rangeEnd
+  }
+
+  function hasReservedInRange(start, end) {
+    const datasReservadas = new Set(reservas.map(r => r.data))
+    const d = new Date(start + 'T00:00:00')
+    const endDate = new Date(end + 'T00:00:00')
+    while (d <= endDate) {
+      if (datasReservadas.has(dataParaISO(d))) return true
+      d.setDate(d.getDate() + 1)
+    }
+    return false
+  }
+
+  function getDatesInRange() {
+    if (!rangeStart) return []
+    const end = rangeEnd || rangeStart
+    const dates = []
+    const d = new Date(rangeStart + 'T00:00:00')
+    const endDate = new Date(end + 'T00:00:00')
+    while (d <= endDate) {
+      dates.push(dataParaISO(d))
+      d.setDate(d.getDate() + 1)
+    }
+    return dates
+  }
+
+  window.selectCalcDate = function(iso) {
+    if (!rangeStart || rangeEnd) {
+      rangeStart = iso
+      rangeEnd = null
+    } else {
+      if (iso < rangeStart) {
+        rangeEnd = rangeStart
+        rangeStart = iso
+      } else if (iso === rangeStart) {
+        rangeEnd = null
+      } else {
+        rangeEnd = iso
+      }
+
+      if (rangeEnd && hasReservedInRange(rangeStart, rangeEnd)) {
+        const infoEl = document.getElementById('calc-range-info')
+        infoEl.textContent = 'Há datas reservadas no período selecionado. Escolha outro range.'
+        infoEl.classList.add('text-red-500')
+        setTimeout(() => infoEl.classList.remove('text-red-500'), 3000)
+        rangeStart = null
+        rangeEnd = null
+      }
+    }
+
+    renderCalendars()
+    updateRangeInfo()
+    updateResumo()
+  }
+
+  function updateRangeInfo() {
+    const el = document.getElementById('calc-range-info')
+    const dates = getDatesInRange()
+    if (dates.length === 0) {
+      el.textContent = 'Clique em uma data de início e depois na data final'
+    } else if (dates.length === 1) {
+      el.textContent = `${formatarDataExtenso(rangeStart)} (${diaSemana(rangeStart)}) - clique em outra data para selecionar um período`
+    } else {
+      el.textContent = `${formatarDataExtenso(rangeStart)} até ${formatarDataExtenso(rangeEnd)} - ${dates.length} dia(s)`
+    }
+  }
+
+  function renderPacotes() {
+    const container = document.getElementById('calc-pacotes')
+    if (pacotesData.length === 0) {
+      container.innerHTML = '<p class="text-gray-400 text-xs">Nenhum pacote disponível.</p>'
+      return
+    }
+    container.innerHTML = pacotesData.map(p => `
+      <label class="flex items-center gap-2 bg-white p-2.5 rounded-xl border border-gray-200 cursor-pointer hover:border-verde transition-colors">
+        <input type="checkbox" class="calc-pacote-check accent-verde w-4 h-4 flex-shrink-0"
+          data-id="${p.id}" data-preco="${p.preco}" data-nome="${p.nome}" data-unidade="${p.unidade}" />
+        <span class="text-lg flex-shrink-0">${p.icone}</span>
+        <div class="flex-1 min-w-0">
+          <div class="font-medium text-xs">${p.nome}</div>
+          <div class="text-[10px] text-gray-500">${p.descricao || ''}</div>
+        </div>
+        <div class="text-right flex-shrink-0">
+          <div class="font-bold text-verde text-xs">${formatarPreco(p.preco)}</div>
+          <div class="text-[10px] text-gray-400">/${p.unidade}</div>
+        </div>
+        ${p.unidade === 'por metro' ? `
+          <input type="number" class="calc-qtd-input w-16 px-2 py-1 border border-gray-200 rounded-lg text-xs text-center hidden"
+            data-id="${p.id}" min="1" value="10" inputmode="numeric" />
+        ` : ''}
+        ${p.unidade === 'unidade' ? `
+          <input type="number" class="calc-qtd-input w-16 px-2 py-1 border border-gray-200 rounded-lg text-xs text-center hidden"
+            data-id="${p.id}" min="1" value="1" inputmode="numeric" />
+        ` : ''}
+      </label>
+    `).join('')
+
+    container.querySelectorAll('.calc-pacote-check').forEach(cb => {
+      cb.addEventListener('change', (e) => {
+        const id = e.target.dataset.id
+        const qtdInput = container.querySelector(`.calc-qtd-input[data-id="${id}"]`)
+        if (e.target.checked) {
+          selectedPacotes[id] = {
+            nome: e.target.dataset.nome,
+            preco: Number(e.target.dataset.preco),
+            unidade: e.target.dataset.unidade,
+            qtd: qtdInput ? Number(qtdInput.value) : 1
+          }
+          if (qtdInput) qtdInput.classList.remove('hidden')
+        } else {
+          delete selectedPacotes[id]
+          if (qtdInput) qtdInput.classList.add('hidden')
+        }
+        updateResumo()
+      })
+    })
+
+    container.querySelectorAll('.calc-qtd-input').forEach(input => {
+      input.addEventListener('input', (e) => {
+        e.target.value = e.target.value.replace(/[^0-9]/g, '')
+        const id = e.target.dataset.id
+        if (selectedPacotes[id]) {
+          selectedPacotes[id].qtd = Number(e.target.value) || 1
+          updateResumo()
+        }
+      })
+    })
+  }
+
+  function setupNav() {
+    document.getElementById('calc-prev-month').addEventListener('click', () => {
+      currentMonth--
+      if (currentMonth < 0) { currentMonth = 11; currentYear-- }
+      renderCalendars()
+    })
+    document.getElementById('calc-next-month').addEventListener('click', () => {
+      currentMonth++
+      if (currentMonth > 11) { currentMonth = 0; currentYear++ }
+      renderCalendars()
+    })
+  }
+
+  function setupTipos() {
+    document.querySelectorAll('.calc-tipo-btn').forEach(btn => {
+      btn.addEventListener('click', () => {
+        document.querySelectorAll('.calc-tipo-btn').forEach(b => b.classList.remove('border-verde', 'bg-verde/5'))
+        btn.classList.add('border-verde', 'bg-verde/5')
+        selectedTipo = btn.dataset.tipo
+        updateResumo()
+      })
+    })
+  }
+
+  function updateResumo() {
+    const resumo = document.getElementById('calc-resumo')
+    const totalEl = document.getElementById('calc-total')
+    const whatsBtn = document.getElementById('calc-whatsapp-btn')
+    const dates = getDatesInRange()
+
+    if (dates.length === 0) {
+      resumo.innerHTML = '<p class="text-gray-400 text-center text-xs">Selecione as datas no calendário</p>'
+      totalEl.textContent = 'R$ 0'
+      whatsBtn.classList.add('opacity-50', 'pointer-events-none')
+      return
+    }
+
+    let total = 0
+    let linhas = []
+
+    if (dates.length === 1) {
+      const info = calcularPrecoData(dates[0], precosSemana, datasEspeciais)
+      total += info.preco
+      linhas.push(`<div class="flex justify-between text-xs"><span>Aluguel (${info.label})</span><span class="font-semibold">${formatarPreco(info.preco)}</span></div>`)
+    } else {
+      dates.forEach(d => {
+        const info = calcularPrecoData(d, precosSemana, datasEspeciais)
+        total += info.preco
+      })
+      linhas.push(`<div class="flex justify-between text-xs"><span>Aluguel (${dates.length} dias)</span><span class="font-semibold">${formatarPreco(total)}</span></div>`)
+    }
+
+    let totalPacotes = 0
+    Object.values(selectedPacotes).forEach(p => {
+      const qtd = p.qtd || 1
+      const multiplicador = p.unidade === 'diária' ? dates.length : 1
+      const subtotal = p.preco * qtd * multiplicador
+      totalPacotes += subtotal
+      let label = p.nome
+      if (p.unidade === 'por metro') label += ` (${qtd}m)`
+      else if (p.unidade === 'unidade') label += ` (x${qtd})`
+      else if (dates.length > 1) label += ` (${dates.length}d)`
+      linhas.push(`<div class="flex justify-between text-xs"><span>${label}</span><span class="font-semibold">${formatarPreco(subtotal)}</span></div>`)
+    })
+
+    total += totalPacotes
+
+    resumo.innerHTML = linhas.join('') + '<div class="border-t border-dashed border-gray-300 my-1.5"></div>'
+    totalEl.textContent = formatarPreco(total)
+
+    whatsBtn.classList.remove('opacity-50', 'pointer-events-none')
+
+    const convidados = document.getElementById('calc-convidados').value
+    const periodo = dates.length === 1
+      ? formatarDataExtenso(dates[0])
+      : `${formatarDataExtenso(dates[0])} até ${formatarDataExtenso(dates[dates.length - 1])} (${dates.length} dias)`
+
+    const pacotesTexto = Object.values(selectedPacotes).map(p => {
+      if (p.unidade === 'por metro') return `${p.nome} (${p.qtd}m)`
+      if (p.unidade === 'unidade') return `${p.nome} (x${p.qtd})`
+      return p.nome
+    }).join(', ') || 'Nenhum'
+
+    const msg = 'Olá! Vim pelo site do Recanto Sonho Meu e gostaria de confirmar uma reserva.\n\nSegue o resumo:\n\n' +
+      'Periodo: ' + periodo + '\n' +
+      'Evento: ' + (selectedTipo || 'A definir') + '\n' +
+      'Convidados: ' + convidados + '\n' +
+      'Pacotes: ' + pacotesTexto + '\n' +
+      'Valor estimado: ' + formatarPreco(total) + '\n\n' +
+      'Aguardo retorno para finalizar. Obrigado!'
+    whatsBtn.href = gerarUrlWhatsApp(config.whatsapp || '5534999763010', msg)
+  }
+
+  init()
+</script>

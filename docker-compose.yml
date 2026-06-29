@@ -1,0 +1,11 @@
+services:
+  app:
+    build: .
+    ports:
+      - "4322:4322"
+    volumes:
+      - .:/app
+      - /app/node_modules
+    environment:
+      - PUBLIC_SUPABASE_URL=${PUBLIC_SUPABASE_URL}
+      - PUBLIC_SUPABASE_ANON_KEY=${PUBLIC_SUPABASE_ANON_KEY}

@@ -1,0 +1,163 @@
+<div class="admin-tab-panel hidden" data-tab="estrutura">
+  <div class="flex items-center justify-between mb-6">
+    <h2 class="text-2xl font-bold text-verde">🏠 Estrutura</h2>
+    <button id="add-estrutura-btn" class="bg-verde text-white px-4 py-2 rounded-lg text-sm font-semibold hover:bg-verde-claro">
+      + Adicionar
+    </button>
+  </div>
+
+  <div class="bg-white rounded-xl shadow-sm border border-gray-100 overflow-hidden">
+    <table class="w-full text-sm">
+      <thead class="bg-gray-50 text-left">
+        <tr>
+          <th class="px-4 py-3 font-medium text-gray-500 w-8"></th>
+          <th class="px-4 py-3 font-medium text-gray-500">Ícone</th>
+          <th class="px-4 py-3 font-medium text-gray-500">Quantidade</th>
+          <th class="px-4 py-3 font-medium text-gray-500">Item</th>
+          <th class="px-4 py-3 font-medium text-gray-500">Ações</th>
+        </tr>
+      </thead>
+      <tbody id="estrutura-tbody">
+        <tr><td colspan="5" class="px-4 py-8 text-center text-gray-400">Carregando...</td></tr>
+      </tbody>
+    </table>
+  </div>
+
+  <!-- Modal -->
+  <div id="modal-estrutura" class="fixed inset-0 z-50 flex items-center justify-center bg-black/50 hidden">
+    <div class="bg-white rounded-2xl p-6 max-w-md w-full mx-4 shadow-2xl">
+      <h3 id="modal-estrutura-title" class="font-display text-xl font-bold text-verde mb-4">Novo Item</h3>
+      <form id="form-estrutura" class="space-y-4">
+        <input type="hidden" id="estrutura-id" />
+        <div class="grid grid-cols-3 gap-4">
+          <div>
+            <label class="block text-sm font-medium text-gray-700 mb-1">Ícone</label>
+            <input type="text" id="estrutura-icone" required class="w-full min-w-0 px-3 py-2 border rounded-lg box-border" maxlength="4" />
+          </div>
+          <div>
+            <label class="block text-sm font-medium text-gray-700 mb-1">Qtd</label>
+            <input type="text" id="estrutura-qtd" required class="w-full min-w-0 px-3 py-2 border rounded-lg box-border" />
+          </div>
+          <div>
+            <label class="block text-sm font-medium text-gray-700 mb-1">Item</label>
+            <input type="text" id="estrutura-item" required class="w-full min-w-0 px-3 py-2 border rounded-lg box-border" />
+          </div>
+        </div>
+        <div class="flex gap-3 pt-2">
+          <button type="button" id="modal-estrutura-cancel" class="flex-1 py-2 rounded-lg border border-gray-300 hover:bg-gray-50">Cancelar</button>
+          <button type="submit" class="flex-1 py-2 rounded-lg bg-verde text-white font-semibold hover:bg-verde-claro">Salvar</button>
+        </div>
+      </form>
+    </div>
+  </div>
+</div>
+
+<script>
+  import { db } from '../../lib/supabase.js'
+
+  let estrutura = []
+
+  async function loadEstrutura() {
+    try {
+      estrutura = await db.estrutura.listar()
+    } catch { estrutura = [] }
+    renderEstrutura()
+  }
+
+  function renderEstrutura() {
+    const tbody = document.getElementById('estrutura-tbody')
+    if (estrutura.length === 0) {
+      tbody.innerHTML = '<tr><td colspan="5" class="px-4 py-8 text-center text-gray-400">Nenhum item.</td></tr>'
+      return
+    }
+    tbody.innerHTML = estrutura.map(item => `
+      <tr class="border-t border-gray-50 hover:bg-gray-50" draggable="true" data-id="${item.id}">
+        <td class="px-4 py-3 cursor-grab text-gray-300">⋮⋮</td>
+        <td class="px-4 py-3 text-xl">${item.icone}</td>
+        <td class="px-4 py-3 font-bold">${item.quantidade}</td>
+        <td class="px-4 py-3">${item.item}</td>
+        <td class="px-4 py-3">
+          <div class="flex gap-1">
+            <button onclick="window.editEstrutura('${item.id}')" class="p-1 hover:bg-blue-50 rounded text-blue-500">✏️</button>
+            <button onclick="window.removerEstrutura('${item.id}')" class="p-1 hover:bg-red-50 rounded text-red-500">🗑️</button>
+          </div>
+        </td>
+      </tr>
+    `).join('')
+
+    // Drag and drop
+    let dragRow = null
+    tbody.querySelectorAll('tr[draggable]').forEach(row => {
+      row.addEventListener('dragstart', () => { dragRow = row; row.classList.add('opacity-50') })
+      row.addEventListener('dragend', () => { row.classList.remove('opacity-50'); dragRow = null })
+      row.addEventListener('dragover', (e) => { e.preventDefault(); row.classList.add('bg-verde/5') })
+      row.addEventListener('dragleave', () => row.classList.remove('bg-verde/5'))
+      row.addEventListener('drop', async (e) => {
+        e.preventDefault()
+        row.classList.remove('bg-verde/5')
+        if (dragRow && dragRow !== row) {
+          tbody.insertBefore(dragRow, row)
+          const rows = [...tbody.querySelectorAll('tr[data-id]')]
+          try {
+            await db.estrutura.reordenar(rows.map((r, i) => ({ id: r.dataset.id, ordem: i })))
+            await loadEstrutura()
+          } catch { window.showToast('❌ Erro ao reordenar', false) }
+        }
+      })
+    })
+  }
+
+  document.getElementById('add-estrutura-btn').addEventListener('click', () => {
+    document.getElementById('modal-estrutura-title').textContent = 'Novo Item'
+    document.getElementById('form-estrutura').reset()
+    document.getElementById('estrutura-id').value = ''
+    document.getElementById('modal-estrutura').classList.remove('hidden')
+  })
+
+  document.getElementById('modal-estrutura-cancel').addEventListener('click', () => {
+    document.getElementById('modal-estrutura').classList.add('hidden')
+  })
+
+  window.editEstrutura = function(id) {
+    const item = estrutura.find(x => x.id === id)
+    if (!item) return
+    document.getElementById('modal-estrutura-title').textContent = 'Editar Item'
+    document.getElementById('estrutura-id').value = item.id
+    document.getElementById('estrutura-icone').value = item.icone
+    document.getElementById('estrutura-qtd').value = item.quantidade
+    document.getElementById('estrutura-item').value = item.item
+    document.getElementById('modal-estrutura').classList.remove('hidden')
+  }
+
+  document.getElementById('form-estrutura').addEventListener('submit', async (e) => {
+    e.preventDefault()
+    const id = document.getElementById('estrutura-id').value
+    const dados = {
+      icone: document.getElementById('estrutura-icone').value,
+      quantidade: document.getElementById('estrutura-qtd').value,
+      item: document.getElementById('estrutura-item').value
+    }
+    try {
+      if (id) {
+        await db.estrutura.atualizar(id, dados)
+      } else {
+        dados.ordem = estrutura.length
+        await db.estrutura.adicionar(dados)
+      }
+      document.getElementById('modal-estrutura').classList.add('hidden')
+      window.showToast('✅ Item salvo!')
+      await loadEstrutura()
+    } catch { window.showToast('❌ Erro ao salvar', false) }
+  })
+
+  window.removerEstrutura = async function(id) {
+    if (!confirm('Remover este item?')) return
+    try {
+      await db.estrutura.remover(id)
+      window.showToast('✅ Item removido!')
+      await loadEstrutura()
+    } catch { window.showToast('❌ Erro ao remover', false) }
+  }
+
+  loadEstrutura()
+</script>

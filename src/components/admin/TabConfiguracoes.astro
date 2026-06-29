@@ -1,0 +1,211 @@
+<div class="admin-tab-panel hidden" data-tab="configuracoes">
+  <h2 class="text-2xl font-bold text-verde mb-6">⚙️ Configurações</h2>
+
+  <div class="space-y-8">
+    <!-- Configurações gerais -->
+    <div class="bg-white rounded-xl p-6 shadow-sm border border-gray-100">
+      <h3 class="font-semibold text-verde mb-4">Informações do espaço</h3>
+      <div class="space-y-4">
+        <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+          <div>
+            <label class="block text-sm font-medium text-gray-700 mb-1">WhatsApp</label>
+            <input type="text" id="cfg-whatsapp" class="w-full min-w-0 px-3 py-2 border rounded-lg box-border" placeholder="5534999763010" />
+          </div>
+          <div>
+            <label class="block text-sm font-medium text-gray-700 mb-1">Instagram</label>
+            <input type="text" id="cfg-instagram" class="w-full min-w-0 px-3 py-2 border rounded-lg box-border" placeholder="recantosonhomeu08" />
+          </div>
+        </div>
+        <div>
+          <label class="block text-sm font-medium text-gray-700 mb-1">Endereço</label>
+          <input type="text" id="cfg-endereco" class="w-full min-w-0 px-3 py-2 border rounded-lg box-border" />
+        </div>
+        <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+          <div>
+            <label class="block text-sm font-medium text-gray-700 mb-1">URL Google Maps</label>
+            <input type="url" id="cfg-maps-url" class="w-full min-w-0 px-3 py-2 border rounded-lg box-border" />
+          </div>
+          <div>
+            <label class="block text-sm font-medium text-gray-700 mb-1">Embed Maps (iframe src)</label>
+            <input type="url" id="cfg-maps-embed" class="w-full min-w-0 px-3 py-2 border rounded-lg box-border" />
+          </div>
+        </div>
+        <div>
+          <label class="block text-sm font-medium text-gray-700 mb-1">URL Tour Virtual 360°</label>
+          <input type="url" id="cfg-tour" class="w-full min-w-0 px-3 py-2 border rounded-lg box-border" placeholder="Deixe vazio para ocultar a seção" />
+        </div>
+        <div>
+          <label class="block text-sm font-medium text-gray-700 mb-1">Email da dona (notificações)</label>
+          <input type="email" id="cfg-email" class="w-full min-w-0 px-3 py-2 border rounded-lg box-border" />
+        </div>
+        <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+          <div>
+            <label class="block text-sm font-medium text-gray-700 mb-1">Horário da diária</label>
+            <input type="text" id="cfg-horario" class="w-full min-w-0 px-3 py-2 border rounded-lg" placeholder="14h às 22h" />
+          </div>
+          <div>
+            <label class="block text-sm font-medium text-gray-700 mb-1">Max convidados</label>
+            <input type="number" id="cfg-max-convidados" class="w-full min-w-0 px-3 py-2 border rounded-lg" placeholder="200" />
+          </div>
+        </div>
+        <div>
+          <div class="flex items-center justify-between mb-1">
+            <label class="block text-sm font-medium text-gray-700">Regras do espaço</label>
+            <button type="button" id="cfg-regras-add" class="text-verde hover:text-verde-claro text-xl font-bold leading-none" title="Adicionar regra">+</button>
+          </div>
+          <div id="cfg-regras-list" class="space-y-2"></div>
+        </div>
+
+        <div class="flex gap-3">
+          <button id="cfg-salvar" class="bg-verde text-white px-6 py-2 rounded-lg font-semibold hover:bg-verde-claro">
+            Salvar configurações
+          </button>
+          <button id="cfg-teste-email" class="bg-gray-100 text-gray-700 px-6 py-2 rounded-lg font-semibold hover:bg-gray-200">
+            Enviar email de teste
+          </button>
+        </div>
+      </div>
+    </div>
+
+    <!-- Alterar credenciais -->
+    <div class="bg-white rounded-xl p-6 shadow-sm border border-gray-100">
+      <h3 class="font-semibold text-verde mb-4">Alterar credenciais do admin</h3>
+      <div class="space-y-4 max-w-md">
+        <div>
+          <label class="block text-sm font-medium text-gray-700 mb-1">Novo email</label>
+          <input type="email" id="cfg-novo-email" class="w-full min-w-0 px-3 py-2 border rounded-lg box-border" />
+        </div>
+        <button id="cfg-alterar-email" class="bg-verde text-white px-6 py-2 rounded-lg text-sm font-semibold hover:bg-verde-claro">
+          Alterar email
+        </button>
+
+        <hr class="my-4" />
+
+        <div>
+          <label class="block text-sm font-medium text-gray-700 mb-1">Nova senha</label>
+          <input type="password" id="cfg-nova-senha" class="w-full min-w-0 px-3 py-2 border rounded-lg box-border" />
+        </div>
+        <button id="cfg-alterar-senha" class="bg-verde text-white px-6 py-2 rounded-lg text-sm font-semibold hover:bg-verde-claro">
+          Alterar senha
+        </button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<script>
+  import { supabase, db } from '../../lib/supabase.js'
+
+  const campos = {
+    'cfg-whatsapp': 'whatsapp',
+    'cfg-instagram': 'instagram',
+    'cfg-endereco': 'endereco',
+    'cfg-maps-url': 'maps_url',
+    'cfg-maps-embed': 'maps_embed',
+    'cfg-tour': 'tour_virtual',
+    'cfg-email': 'email_admin',
+    'cfg-horario': 'horario_diaria',
+    'cfg-max-convidados': 'max_convidados'
+  }
+
+  function addRegraRow(valor = '') {
+    const list = document.getElementById('cfg-regras-list')
+    const row = document.createElement('div')
+    row.className = 'flex gap-2 items-center'
+    row.innerHTML = `
+      <input type="text" class="cfg-regra-input flex-1 min-w-0 px-3 py-2 border rounded-lg text-sm" value="${valor.replace(/"/g, '&quot;')}" placeholder="Ex: Proibido som automotivo" />
+      <button type="button" class="cfg-regra-remove text-red-400 hover:text-red-600 text-lg font-bold leading-none px-2" title="Remover">×</button>
+    `
+    row.querySelector('.cfg-regra-remove').addEventListener('click', () => row.remove())
+    list.appendChild(row)
+  }
+
+  function getRegras() {
+    return [...document.querySelectorAll('.cfg-regra-input')]
+      .map(el => el.value.trim())
+      .filter(v => v.length > 0)
+  }
+
+  document.getElementById('cfg-regras-add').addEventListener('click', () => addRegraRow())
+
+  async function loadConfig() {
+    try {
+      const config = await db.config.listar()
+      Object.entries(campos).forEach(([elId, chave]) => {
+        const el = document.getElementById(elId)
+        if (el && config[chave]) el.value = config[chave]
+      })
+      const regras = config.regras_espaco
+      if (regras) {
+        const lista = typeof regras === 'string' ? regras.split(';;') : (Array.isArray(regras) ? regras : [regras])
+        lista.forEach(r => addRegraRow(r))
+      }
+      if (!document.querySelectorAll('.cfg-regra-input').length) addRegraRow()
+    } catch {
+      window.showToast('❌ Erro ao carregar configurações', false)
+    }
+  }
+
+  document.getElementById('cfg-salvar').addEventListener('click', async () => {
+    try {
+      for (const [elId, chave] of Object.entries(campos)) {
+        await db.config.atualizar(chave, document.getElementById(elId).value)
+      }
+      await db.config.atualizar('regras_espaco', getRegras().join(';;'))
+      window.showToast('✅ Configurações salvas!')
+    } catch {
+      window.showToast('❌ Erro ao salvar', false)
+    }
+  })
+
+  document.getElementById('cfg-teste-email').addEventListener('click', async () => {
+    try {
+      const emailAdmin = document.getElementById('cfg-email').value
+      if (!emailAdmin) { window.showToast('❌ Preencha o email da dona', false); return }
+      await supabase.functions.invoke('notify-lead', {
+        body: {
+          nome: 'Teste',
+          email: 'teste@teste.com',
+          whatsapp: '00000000000',
+          tipo_evento: 'Teste',
+          data_desejada: new Date().toISOString().split('T')[0],
+          num_convidados: '10',
+          mensagem: 'Este é um email de teste do painel admin.'
+        }
+      })
+      window.showToast('✅ Email de teste enviado!')
+    } catch {
+      window.showToast('❌ Erro ao enviar email', false)
+    }
+  })
+
+  document.getElementById('cfg-alterar-email').addEventListener('click', async () => {
+    const email = document.getElementById('cfg-novo-email').value
+    if (!email) return
+    try {
+      const { error } = await supabase.auth.updateUser({ email })
+      if (error) throw error
+      window.showToast('✅ Email alterado! Verifique sua caixa de entrada.')
+    } catch {
+      window.showToast('❌ Erro ao alterar email', false)
+    }
+  })
+
+  document.getElementById('cfg-alterar-senha').addEventListener('click', async () => {
+    const password = document.getElementById('cfg-nova-senha').value
+    if (!password || password.length < 6) {
+      window.showToast('❌ Senha deve ter pelo menos 6 caracteres', false)
+      return
+    }
+    try {
+      const { error } = await supabase.auth.updateUser({ password })
+      if (error) throw error
+      window.showToast('✅ Senha alterada!')
+      document.getElementById('cfg-nova-senha').value = ''
+    } catch {
+      window.showToast('❌ Erro ao alterar senha', false)
+    }
+  })
+
+  loadConfig()
+</script>
