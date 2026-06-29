@@ -1,0 +1,55 @@
+<section id="google-reviews" class="py-20 bg-gray-50">
+  <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+    <div class="text-center mb-12 fade-in">
+      <h2 class="font-display text-3xl sm:text-4xl font-bold text-verde mb-4">
+        Avaliações no Google
+      </h2>
+      <p class="text-gray-500 max-w-2xl mx-auto">
+        Veja o que nossos clientes dizem sobre nós no Google.
+      </p>
+    </div>
+
+    <div id="google-reviews-container" class="flex justify-center fade-in">
+      <div class="skeleton h-64 w-full max-w-3xl rounded-2xl"></div>
+    </div>
+  </div>
+</section>
+
+<script>
+  import { db } from '../../lib/supabase.js'
+
+  async function init() {
+    const container = document.getElementById('google-reviews-container')
+    try {
+      const config = await db.config.listar()
+      const widgetCode = config.google_reviews_widget
+
+      if (!widgetCode) {
+        document.getElementById('google-reviews').style.display = 'none'
+        return
+      }
+
+      const divMatch = widgetCode.match(/<div[^>]*>[\s\S]*?<\/div>/) || widgetCode.match(/<div[^>]*\/>/)
+      if (divMatch) {
+        container.innerHTML = divMatch[0]
+      }
+
+      const scriptMatch = widgetCode.match(/src="([^"]+)"/)
+      if (scriptMatch) {
+        const existingScript = document.querySelector(`script[src="${scriptMatch[1]}"]`)
+        if (!existingScript) {
+          const script = document.createElement('script')
+          script.src = scriptMatch[1]
+          script.async = true
+          document.body.appendChild(script)
+        }
+      } else {
+        container.innerHTML = widgetCode.replace(/<script[\s\S]*?<\/script>/gi, '')
+      }
+    } catch {
+      document.getElementById('google-reviews').style.display = 'none'
+    }
+  }
+
+  init()
+</script>
