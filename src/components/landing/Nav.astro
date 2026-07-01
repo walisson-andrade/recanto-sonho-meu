@@ -29,15 +29,15 @@
     </div>
 
     <!-- Menu mobile -->
-    <div id="mobile-menu" class="md:hidden hidden pb-4">
-      <div class="flex flex-col gap-2">
-        <a href="#sobre" class="nav-link-mobile px-4 py-2 text-sm font-medium text-white/90 hover:bg-white/10 rounded-lg">Sobre</a>
-        <a href="#estrutura" class="nav-link-mobile px-4 py-2 text-sm font-medium text-white/90 hover:bg-white/10 rounded-lg">Estrutura</a>
-        <a href="#galeria" class="nav-link-mobile px-4 py-2 text-sm font-medium text-white/90 hover:bg-white/10 rounded-lg">Galeria</a>
-        <a href="#depoimentos" class="nav-link-mobile px-4 py-2 text-sm font-medium text-white/90 hover:bg-white/10 rounded-lg">Depoimentos</a>
-        <a href="#contato" class="nav-link-mobile px-4 py-2 text-sm font-medium text-white/90 hover:bg-white/10 rounded-lg">Contato</a>
+    <div id="mobile-menu" class="md:hidden hidden pb-4 bg-white/95 backdrop-blur-md shadow-lg rounded-b-2xl -mx-4 px-4 mt-1">
+      <div class="flex flex-col gap-2 pt-2">
+        <a href="#sobre" class="nav-link-mobile px-4 py-2 text-sm font-medium text-gray-700 hover:bg-verde/5 hover:text-verde rounded-lg transition-colors">Sobre</a>
+        <a href="#estrutura" class="nav-link-mobile px-4 py-2 text-sm font-medium text-gray-700 hover:bg-verde/5 hover:text-verde rounded-lg transition-colors">Estrutura</a>
+        <a href="#galeria" class="nav-link-mobile px-4 py-2 text-sm font-medium text-gray-700 hover:bg-verde/5 hover:text-verde rounded-lg transition-colors">Galeria</a>
+        <a href="#depoimentos" class="nav-link-mobile px-4 py-2 text-sm font-medium text-gray-700 hover:bg-verde/5 hover:text-verde rounded-lg transition-colors">Depoimentos</a>
+        <a href="#contato" class="nav-link-mobile px-4 py-2 text-sm font-medium text-gray-700 hover:bg-verde/5 hover:text-verde rounded-lg transition-colors">Contato</a>
         <a href="#calculadora"
-          class="mx-4 mt-2 bg-verde text-white px-5 py-2 rounded-full text-sm font-semibold text-center hover:bg-verde-claro transition-colors">
+          class="mx-4 mt-2 mb-2 bg-verde text-white px-5 py-2 rounded-full text-sm font-semibold text-center hover:bg-verde-claro transition-colors">
           📅 Reservar
         </a>
       </div>
@@ -66,7 +66,6 @@
       navLogoAccent.classList.remove('text-champagne')
       navLogoAccent.classList.add('text-dourado')
       navLinks.forEach(l => { l.classList.remove('text-white/90'); l.classList.add('text-gray-700'); l.classList.remove('hover:text-white'); l.classList.add('hover:text-verde') })
-      navLinksMobile.forEach(l => { l.classList.remove('text-white/90', 'hover:bg-white/10'); l.classList.add('text-gray-700', 'hover:bg-verde/5') })
       menuToggle.classList.remove('text-white')
       menuToggle.classList.add('text-verde')
     } else {
@@ -76,7 +75,6 @@
       navLogoAccent.classList.remove('text-dourado')
       navLogoAccent.classList.add('text-champagne')
       navLinks.forEach(l => { l.classList.remove('text-gray-700'); l.classList.add('text-white/90'); l.classList.remove('hover:text-verde'); l.classList.add('hover:text-white') })
-      navLinksMobile.forEach(l => { l.classList.remove('text-gray-700', 'hover:bg-verde/5'); l.classList.add('text-white/90', 'hover:bg-white/10') })
       menuToggle.classList.remove('text-verde')
       menuToggle.classList.add('text-white')
     }

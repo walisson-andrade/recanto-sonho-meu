@@ -1,5 +1,7 @@
 FROM node:24-alpine
 WORKDIR /app
+COPY package*.json ./
+RUN npm install
 ENV HOST=0.0.0.0
 EXPOSE 4322
 CMD ["npm", "run", "dev"]
