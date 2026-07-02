@@ -47,7 +47,7 @@
 
   async function init() {
     try {
-      depoimentos = await db.depoimentos.listar()
+      depoimentos = await db.depoimentos.listarPublico()
     } catch { depoimentos = [] }
 
     if (depoimentos.length === 0) {

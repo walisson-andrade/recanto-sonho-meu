@@ -25,7 +25,7 @@
   async function carregarEstrutura() {
     const grid = document.getElementById('estrutura-grid')
     try {
-      const itens = await db.estrutura.listar()
+      const itens = await db.estrutura.listarPublico()
       if (itens.length === 0) {
         grid.innerHTML = '<p class="text-white/50 col-span-full">Nenhum item cadastrado.</p>'
         return

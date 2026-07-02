@@ -71,7 +71,7 @@ const {
 
     async function loadFabs() {
       try {
-        const config = await db.config.listar()
+        const config = await db.config.listarPublico()
         if (config.whatsapp) document.getElementById('fab-wa').onclick = () => window.open(`https://wa.me/${config.whatsapp}`, '_blank')
         if (config.instagram) document.getElementById('fab-ig').onclick = () => window.open(`https://instagram.com/${config.instagram}`, '_blank')
       } catch {}

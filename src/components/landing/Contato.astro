@@ -117,7 +117,7 @@
 
   async function init() {
     try {
-      const config = await db.config.listar()
+      const config = await db.config.listarPublico()
       if (config.whatsapp) {
         document.getElementById('contato-whatsapp').href = `https://wa.me/${config.whatsapp}`
       }
@@ -174,7 +174,7 @@
     // Max convidados configurável
     let maxConvidados = 200
     try {
-      const cfg = await db.config.listar()
+      const cfg = await db.config.listarPublico()
       if (cfg.max_convidados) maxConvidados = parseInt(cfg.max_convidados)
     } catch {}
     const numConvidados = document.getElementById('num-convidados')

@@ -21,7 +21,7 @@
   async function init() {
     const container = document.getElementById('google-reviews-container')
     try {
-      const config = await db.config.listar()
+      const config = await db.config.listarPublico()
       const widgetCode = config.google_reviews_widget
 
       if (!widgetCode) {

@@ -63,6 +63,14 @@ export const db = {
   },
 
   datasEspeciais: {
+    async listarPublico() {
+      const { data, error } = await supabase
+        .from('datas_especiais_publicas')
+        .select('*')
+        .order('data')
+      if (error) throw error
+      return data
+    },
     async listar() {
       const { data, error } = await supabase
         .from('datas_especiais')
@@ -87,6 +95,14 @@ export const db = {
   },
 
   pacotes: {
+    async listarPublico() {
+      const { data, error } = await supabase
+        .from('pacotes_publicos')
+        .select('*')
+        .order('ordem')
+      if (error) throw error
+      return data
+    },
     async listar() {
       const { data, error } = await supabase
         .from('pacotes')
@@ -123,6 +139,14 @@ export const db = {
   },
 
   fotos: {
+    async listarPublico() {
+      const { data, error } = await supabase
+        .from('fotos_publicas')
+        .select('*')
+        .order('ordem')
+      if (error) throw error
+      return data
+    },
     async listar() {
       const { data, error } = await supabase
         .from('fotos')
@@ -168,6 +192,14 @@ export const db = {
   },
 
   estrutura: {
+    async listarPublico() {
+      const { data, error } = await supabase
+        .from('estrutura_publica')
+        .select('*')
+        .order('ordem')
+      if (error) throw error
+      return data
+    },
     async listar() {
       const { data, error } = await supabase
         .from('estrutura')
@@ -204,6 +236,14 @@ export const db = {
   },
 
   depoimentos: {
+    async listarPublico() {
+      const { data, error } = await supabase
+        .from('depoimentos_publicos')
+        .select('*')
+        .order('created_at', { ascending: false })
+      if (error) throw error
+      return data
+    },
     async listar() {
       const { data, error } = await supabase
         .from('depoimentos')
@@ -251,6 +291,14 @@ export const db = {
   },
 
   faq: {
+    async listarPublico() {
+      const { data, error } = await supabase
+        .from('faq_publica')
+        .select('*')
+        .order('ordem')
+      if (error) throw error
+      return data
+    },
     async listar() {
       const { data, error } = await supabase
         .from('faq')
@@ -287,6 +335,13 @@ export const db = {
   },
 
   config: {
+    async listarPublico() {
+      const { data, error } = await supabase
+        .from('configuracoes_publicas')
+        .select('*')
+      if (error) throw error
+      return Object.fromEntries(data.map(r => [r.chave, r.valor]))
+    },
     async listar() {
       const { data, error } = await supabase
         .from('configuracoes')

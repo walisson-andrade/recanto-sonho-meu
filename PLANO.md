@@ -122,3 +122,54 @@ Antes de rodar o projeto:
 6. **Domínio**: O `site` no astro.config aponta para `recantosonhomeu08.github.io`. O arquivo `public/CNAME` deve ser criado vazio ou com algum domínio específico?
 
 7. **Responsividade da Calculadora**: O mini-calendário inline na calculadora é o mesmo componente do calendário da seção Agenda, ou um componente separado mais simples (date picker)?
+
+---
+
+## 6. Auditoria de Segurança — Proteção de dados (RLS)
+
+A chave anon do Supabase é pública por design (fica visível no DevTools de
+qualquer visitante). A proteção real dos dados é feita pelas policies de
+Row Level Security (RLS) no Postgres — não pela chave em si.
+
+### Resultado final (2026-07-02, testado com a chave anon direto na API REST)
+
+Todas as tabelas base agora bloqueiam leitura pública (`select * → []` pra chave
+anon). O acesso público passa exclusivamente por views que devolvem só as
+colunas que a landing page de fato usa:
+
+| Tabela base | Tinha exposto (antes) | View pública | Colunas na view |
+|---|---|---|---|
+| `reservas` | linha inteira: nome, email, whatsapp, observações, título | `reservas_datas` | `data` |
+| `datas_especiais` | linha inteira, incl. `id` | `datas_especiais_publicas` | `data, label, preco, recorrente` |
+| `pacotes` | linha inteira, incl. `disponivel` | `pacotes_publicos` | `id, icone, nome, descricao, preco, unidade, ordem` (só `disponivel=true`) |
+| `fotos` | linha inteira, incl. `id, created_at` | `fotos_publicas` | `url, legenda, categoria, ordem` |
+| `estrutura` | linha inteira, incl. `id` | `estrutura_publica` | `icone, quantidade, item, ordem` |
+| `depoimentos` | linha inteira, incl. `id` | `depoimentos_publicos` | `nome, tipo_evento, texto, avaliacao, created_at` (só `aprovado=true`) |
+| `faq` | linha inteira, incl. `id, ativo` | `faq_publica` | `pergunta, resposta, ordem` (só `ativo=true`) |
+| `configuracoes` | **todas as chaves, incl. `email_admin`** | `configuracoes_publicas` | whitelist de 10 chaves (sem `email_admin`) |
+| `precos_semana` | `dia_semana, preco` | — (tabela já minimalista, sem view) | leitura pública direta mantida |
+| `leads` | — | — | nunca teve leitura pública (só `INSERT`) |
+
+Migrations aplicadas: `002_fix_reservas_pii_leak.sql`, `003_reservas_datas_sem_titulo.sql`,
+`004_views_publicas_minimas.sql`. Frontend (`src/lib/supabase.js` + todos os
+componentes de `src/components/landing/`) atualizado para usar `listarPublico()`
+em vez de `listar()`; o painel admin (`src/components/admin/`) continua usando
+`listar()` (tabela completa), protegido pela policy `admin_all` (role
+`authenticated`).
+
+### O que foi corrigido
+
+`reservas` tinha `CREATE POLICY "pub_read" ON reservas FOR SELECT USING (true)`,
+que expunha nome/email/whatsapp/observações de todo cliente pra qualquer
+visitante do site. Corrigido em `supabase/migrations/002_fix_reservas_pii_leak.sql`:
+policy removida, criada view `reservas_datas` (id/data/titulo) pro uso público
+no calendário. Frontend (`Agenda.astro`, `Calculadora.astro`, `Hero.astro`)
+atualizado para usar `db.reservas.listarDatas()` em vez de `db.reservas.listar()`.
+
+### Regra para tabelas futuras
+
+Antes de criar `CREATE POLICY ... FOR SELECT USING (true)` em qualquer tabela
+nova, verificar se ela tem colunas com dado pessoal de cliente (nome, email,
+telefone, endereço, data de nascimento, mensagens). Se tiver, nunca expor a
+tabela inteira publicamente — criar uma view com só as colunas não-sensíveis,
+ou restringir a policy à role `authenticated`.

@@ -69,7 +69,7 @@
 
 <script>
   import { db } from '../../lib/supabase.js'
-  import { nomeMes, dataParaISO, calcularPrecoData, formatarPreco, formatarDataExtenso, gerarUrlWhatsApp, diaSemana, esc } from '../../lib/helpers.js'
+  import { nomeMes, dataParaISO, calcularPrecoData, formatarPreco, formatarDataExtenso, gerarUrlWhatsApp, diaSemana } from '../../lib/helpers.js'
 
   let precosSemana = []
   let datasEspeciais = []
@@ -82,9 +82,9 @@
     try {
       ;[precosSemana, datasEspeciais, reservas, config] = await Promise.all([
         db.precos.listar(),
-        db.datasEspeciais.listar(),
+        db.datasEspeciais.listarPublico(),
         db.reservas.listarDatas(),
-        db.config.listar()
+        db.config.listarPublico()
       ])
     } catch { /* fallback sem dados */ }
 
@@ -99,8 +99,7 @@
     const daysInMonth = new Date(year, month + 1, 0).getDate()
     const hoje = new Date()
     hoje.setHours(0, 0, 0, 0)
-    const datasReservadas = new Map()
-    reservas.forEach(r => datasReservadas.set(r.data, r.titulo))
+    const datasReservadas = new Set(reservas.map(r => r.data))
 
     let html = ''
     for (let i = 0; i < firstDay; i++) html += '<div></div>'
@@ -120,7 +119,7 @@
       } else if (reservado) {
         classes += 'bg-red-50 text-red-400 cursor-default'
         if (isHoje) classes += ' ring-2 ring-dourado'
-        html += `<div class="${classes}" title="${esc(datasReservadas.get(iso))}">
+        html += `<div class="${classes}" title="Reservado">
           <div class="line-through">${d}</div>
         </div>`
         continue

@@ -44,7 +44,7 @@
 
   async function carregarContato() {
     try {
-      const config = await db.config.listar()
+      const config = await db.config.listarPublico()
       const container = document.getElementById('footer-contato')
       container.innerHTML = `
         <div class="flex items-start gap-2">
