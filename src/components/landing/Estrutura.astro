@@ -1,5 +1,13 @@
-<section id="estrutura" class="py-20 bg-verde text-white">
-  <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 text-center">
+<section id="estrutura" class="relative py-20 bg-verde text-white overflow-hidden">
+  <!-- Textura decorativa (imagem ilustrativa, não é foto do espaço) -->
+  <div
+    class="absolute inset-0 bg-cover bg-center pointer-events-none"
+    style="background-image:url('/images/leaves-texture.jpg')"
+    aria-hidden="true"
+  ></div>
+  <div class="absolute inset-0 bg-verde/85 pointer-events-none" aria-hidden="true"></div>
+
+  <div class="relative z-10 max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 text-center">
     <h2 class="font-display text-3xl sm:text-4xl font-bold text-champagne mb-4 fade-in">
       Estrutura do Espaço
     </h2>
@@ -8,7 +16,7 @@
     </p>
 
     <!-- Grid com skeleton -->
-    <div id="estrutura-grid" class="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 gap-4 fade-in">
+    <div id="estrutura-grid" class="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 gap-4">
       <!-- Skeleton loaders -->
       <div class="skeleton h-24 rounded-xl"></div>
       <div class="skeleton h-24 rounded-xl"></div>
@@ -31,12 +39,13 @@
         return
       }
       grid.innerHTML = itens.map(item => `
-        <div class="bg-white/10 backdrop-blur-sm rounded-xl p-4 text-center border border-white/10">
+        <div class="estrutura-item bg-white/10 backdrop-blur-sm rounded-xl p-4 text-center border border-white/10 transition-all duration-300 hover:bg-white/15 hover:-translate-y-1">
           <div class="text-3xl mb-2">${esc(item.icone)}</div>
           <div class="text-2xl font-bold text-champagne">${esc(item.quantidade)}</div>
           <div class="text-sm text-white/80">${esc(item.item)}</div>
         </div>
       `).join('')
+      window.observeFadeInStagger?.(grid, '.estrutura-item')
     } catch {
       grid.innerHTML = '<p class="text-white/50 col-span-full">Erro ao carregar estrutura.</p>'
     }

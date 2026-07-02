@@ -1,50 +1,58 @@
-<section class="relative min-h-screen flex items-center justify-center overflow-hidden bg-gradient-to-br from-verde via-verde-claro to-verde">
+<section class="relative min-h-screen flex items-center justify-center overflow-hidden bg-verde">
+  <!-- Textura decorativa (imagem ilustrativa, não é foto do espaço) -->
+  <div
+    class="absolute inset-0 bg-cover bg-center pointer-events-none"
+    style="background-image:url('/images/bokeh-lights.jpg')"
+    aria-hidden="true"
+  ></div>
+  <div class="absolute inset-0 bg-gradient-to-br from-verde/90 via-verde-claro/80 to-verde/90 pointer-events-none" aria-hidden="true"></div>
+
   <!-- Canvas de confetes -->
   <canvas id="confetti-canvas" class="absolute inset-0 pointer-events-none"></canvas>
 
   <div class="relative z-10 text-center px-4 max-w-4xl mx-auto pt-20">
     <!-- Badge -->
-    <div class="inline-flex items-center gap-2 bg-white/15 backdrop-blur-sm text-white px-4 py-2 rounded-full text-sm mb-6">
+    <div class="hero-in hero-in-1 inline-flex items-center gap-2 bg-white/15 backdrop-blur-sm text-white px-4 py-2 rounded-full text-sm mb-6">
       <span>✨</span> Salão de Festas · Uberlândia, MG
     </div>
 
     <!-- Título -->
-    <h1 class="font-display text-4xl sm:text-5xl md:text-6xl lg:text-7xl font-bold text-white leading-tight mb-6">
+    <h1 class="hero-in hero-in-2 font-display text-4xl sm:text-5xl md:text-6xl lg:text-7xl font-bold text-white leading-tight mb-6">
       Seu evento dos <em class="text-champagne not-italic">sonhos</em> começa aqui
     </h1>
 
     <!-- Pill dinâmica -->
-    <div id="hero-pill" class="inline-flex items-center gap-2 bg-white/20 backdrop-blur-sm text-white px-5 py-2.5 rounded-full text-sm mb-8">
+    <div id="hero-pill" class="hero-in hero-in-3 inline-flex items-center gap-2 bg-white/20 backdrop-blur-sm text-white px-5 py-2.5 rounded-full text-sm mb-8">
       <span>📅</span>
       <span id="hero-pill-text" class="skeleton w-48 h-4 inline-block rounded"></span>
     </div>
 
     <!-- Botões -->
-    <div class="flex flex-col sm:flex-row items-center justify-center gap-4 mb-12">
+    <div class="hero-in hero-in-4 flex flex-col sm:flex-row items-center justify-center gap-4 mb-12">
       <a href="#calculadora"
-        class="bg-dourado text-white px-8 py-3.5 rounded-full font-semibold text-lg hover:bg-dourado-escuro transition-colors shadow-lg">
+        class="cta-pulse bg-dourado text-white px-8 py-3.5 rounded-full font-semibold text-lg hover:bg-dourado-escuro hover:-translate-y-0.5 transition-all shadow-lg">
         Garanta sua data
       </a>
       <a href="#estrutura"
-        class="bg-white/15 backdrop-blur-sm text-white px-8 py-3.5 rounded-full font-semibold text-lg hover:bg-white/25 transition-colors border border-white/30">
+        class="bg-white/15 backdrop-blur-sm text-white px-8 py-3.5 rounded-full font-semibold text-lg hover:bg-white/25 hover:-translate-y-0.5 transition-all border border-white/30">
         Ver o espaço
       </a>
     </div>
 
     <!-- Stats -->
-    <div class="flex items-center justify-center gap-8 sm:gap-12 text-white/90">
+    <div class="hero-in hero-in-5 flex items-center justify-center gap-8 sm:gap-12 text-white/90">
       <div class="text-center">
-        <div class="text-2xl sm:text-3xl font-bold">150+</div>
+        <div class="text-2xl sm:text-3xl font-bold"><span id="stat-pessoas">0</span>+</div>
         <div class="text-xs sm:text-sm text-white/70">Pessoas</div>
       </div>
       <div class="w-px h-10 bg-white/20"></div>
       <div class="text-center">
-        <div class="text-2xl sm:text-3xl font-bold">5★</div>
+        <div class="text-2xl sm:text-3xl font-bold"><span id="stat-avaliacoes">0</span>★</div>
         <div class="text-xs sm:text-sm text-white/70">Avaliações</div>
       </div>
       <div class="w-px h-10 bg-white/20"></div>
       <div class="text-center">
-        <div class="text-2xl sm:text-3xl font-bold">3</div>
+        <div class="text-2xl sm:text-3xl font-bold"><span id="stat-tipos">0</span></div>
         <div class="text-xs sm:text-sm text-white/70">Tipos de evento</div>
       </div>
     </div>
@@ -137,6 +145,33 @@
     })
   }
 
+  // Contador animado das estatísticas
+  function countUp(el, target, duration = 1200) {
+    const reducedMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches
+    if (!el) return
+    if (reducedMotion) { el.textContent = target; return }
+
+    const start = performance.now()
+    function tick(now) {
+      const progress = Math.min((now - start) / duration, 1)
+      const eased = 1 - Math.pow(1 - progress, 3)
+      el.textContent = Math.round(eased * target)
+      if (progress < 1) requestAnimationFrame(tick)
+    }
+    requestAnimationFrame(tick)
+  }
+
+  function initStats() {
+    const reducedMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches
+    const delay = reducedMotion ? 0 : 750
+    setTimeout(() => {
+      countUp(document.getElementById('stat-pessoas'), 150)
+      countUp(document.getElementById('stat-avaliacoes'), 5)
+      countUp(document.getElementById('stat-tipos'), 3)
+    }, delay)
+  }
+
   carregarProximaData()
   initConfetti()
+  initStats()
 </script>

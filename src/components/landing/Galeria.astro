@@ -19,7 +19,7 @@
     </div>
 
     <!-- Grid -->
-    <div id="galeria-grid" class="columns-2 md:columns-3 lg:columns-4 gap-4 fade-in">
+    <div id="galeria-grid" class="columns-2 md:columns-3 lg:columns-4 gap-4">
       <div class="skeleton h-48 rounded-xl mb-4"></div>
       <div class="skeleton h-64 rounded-xl mb-4"></div>
       <div class="skeleton h-56 rounded-xl mb-4"></div>
@@ -75,7 +75,7 @@
       return
     }
     grid.innerHTML = filteredFotos.map((f, i) => `
-      <div class="break-inside-avoid mb-4 cursor-pointer group" onclick="window.openLightbox(${i})">
+      <div class="galeria-item break-inside-avoid mb-4 cursor-pointer group" onclick="window.openLightbox(${i})">
         <div class="relative overflow-hidden rounded-xl">
           <img src="${esc(f.url)}" alt="${esc(f.legenda) || 'Foto do espaço'}" loading="lazy"
             class="w-full object-cover group-hover:scale-105 transition-transform duration-300" />
@@ -85,6 +85,7 @@
         </div>
       </div>
     `).join('')
+    window.observeFadeInStagger?.(grid, '.galeria-item', 50)
   }
 
   function setupFiltros() {

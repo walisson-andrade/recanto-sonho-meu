@@ -1,3 +1,60 @@
+---
+const seoKeywords = [
+  // Local / marca
+  'salão de festas Uberlândia', 'salão de festas Uberlândia MG', 'salão de festas Laranjeiras Uberlândia',
+  'espaço para eventos Uberlândia', 'espaço para festas Uberlândia', 'chácara para eventos Uberlândia',
+  'chácara para festas Uberlândia', 'sítio para eventos Uberlândia', 'sítio para casamento Uberlândia',
+  'casa de eventos Uberlândia', 'Recanto Sonho Meu Uberlândia', 'salão de festas bairro Laranjeiras',
+  'espaço para eventos Triângulo Mineiro', 'salão de festas região de Uberlândia', 'salão de festas perto de mim',
+  // Casamento
+  'espaço para casamento Uberlândia', 'casamento ao ar livre Uberlândia', 'casamento no campo Uberlândia',
+  'casamento com jardim Uberlândia', 'mini wedding Uberlândia', 'espaço para casamento pequeno',
+  'salão para casamento de dia', 'salão para recepção de casamento', 'cerimônia e recepção no mesmo local',
+  'espaço para casamento civil', 'espaço para casamento religioso', 'espaço rústico para casamento',
+  'espaço campestre para casamento', 'buffet para casamento Uberlândia', 'decoração de casamento no salão',
+  // Festas e aniversários
+  'festa de 15 anos Uberlândia', 'salão para debutante Uberlândia', 'espaço para aniversário infantil',
+  'festa infantil com piscina', 'aniversário adulto Uberlândia', 'festa de aniversário Uberlândia',
+  'buffet infantil Uberlândia', 'espaço para festa de criança', 'salão de festas para festa infantil',
+  'festa surpresa espaço para alugar',
+  // Chá e comemorações
+  'chá de bebê Uberlândia', 'chá revelação espaço Uberlândia', 'chá de panela espaço para festa',
+  'noivado espaço Uberlândia', 'batizado espaço para festa', 'despedida de solteira Uberlândia',
+  'despedida de solteiro Uberlândia',
+  // Corporativo
+  'confraternização de empresa Uberlândia', 'evento corporativo Uberlândia', 'festa de fim de ano empresa',
+  'réveillon Uberlândia', 'espaço para retiro corporativo', 'espaço para workshop Uberlândia',
+  'espaço para treinamento empresarial', 'day use corporativo Uberlândia',
+  // Day use / lazer
+  'day use Uberlândia', 'day use com piscina Uberlândia', 'sítio para day use',
+  'chácara com piscina para alugar', 'espaço para confraternização com piscina',
+  // Estrutura / amenidades
+  'salão de festas com piscina', 'salão de festas com churrasqueira', 'salão de festas com jardim',
+  'salão de festas com estacionamento', 'salão de festas com hospedagem', 'pousada para eventos Uberlândia',
+  'espaço com quartos para hospedagem', 'salão de festas com sistema de som', 'salão de festas com ventilação',
+  'salão de festas com área externa', 'espaço para eventos com natureza', 'salão de festas com área verde',
+  'salão de festas com estrutura completa',
+  // Capacidade
+  'salão de festas para 150 pessoas', 'espaço para grandes eventos Uberlândia',
+  'espaço para pequenos eventos Uberlândia', 'salão de festas para até 150 convidados',
+  // Transacional
+  'alugar salão de festas Uberlândia', 'alugar espaço para festa', 'alugar chácara para festa',
+  'orçamento salão de festas Uberlândia', 'preço salão de festas Uberlândia', 'reservar espaço para festa',
+  'reservar salão de festas online', 'valor de aluguel de salão de festas',
+  'disponibilidade salão de festas Uberlândia',
+  // Qualificadores
+  'melhor salão de festas Uberlândia', 'salão de festas econômico Uberlândia',
+  'salão de festas completo Uberlândia', 'espaço para festa com boa localização',
+  'salão de festas com fotos e avaliações',
+  // Sazonais / temáticos
+  'festa junina espaço para alugar', 'arraiá espaço para eventos', 'formatura espaço para festa',
+  'show ao vivo espaço para eventos',
+  // Fotos / mídia
+  'ensaio fotográfico espaço para eventos', 'espaço instagramável para festa', 'fotos de casamento no espaço',
+  'tour virtual salão de festas Uberlândia', 'galeria de fotos salão de festas',
+]
+---
+
 <footer class="bg-[#1a1a1a] text-white py-12">
   <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
     <div class="grid md:grid-cols-3 gap-8">
@@ -13,12 +70,13 @@
       <!-- Links -->
       <div>
         <h4 class="font-semibold text-champagne mb-4">Navegação</h4>
-        <ul class="space-y-2 text-sm list-none p-0 m-0">
+        <ul class="grid grid-cols-2 gap-x-4 gap-y-2 text-sm list-none p-0 m-0">
           <li><span class="cursor-pointer text-white/60 hover:text-champagne transition-colors" onclick="document.getElementById('sobre')?.scrollIntoView({behavior:'smooth'})">Sobre</span></li>
           <li><span class="cursor-pointer text-white/60 hover:text-champagne transition-colors" onclick="document.getElementById('estrutura')?.scrollIntoView({behavior:'smooth'})">Estrutura</span></li>
           <li><span class="cursor-pointer text-white/60 hover:text-champagne transition-colors" onclick="document.getElementById('galeria')?.scrollIntoView({behavior:'smooth'})">Galeria</span></li>
           <li><span class="cursor-pointer text-white/60 hover:text-champagne transition-colors" onclick="document.getElementById('calculadora')?.scrollIntoView({behavior:'smooth'})">Reservar</span></li>
           <li><span class="cursor-pointer text-white/60 hover:text-champagne transition-colors" onclick="document.getElementById('contato')?.scrollIntoView({behavior:'smooth'})">Contato</span></li>
+          <li><span class="cursor-pointer text-white/60 hover:text-champagne transition-colors" onclick="document.getElementById('seo-modal').style.display='flex'">SEO</span></li>
         </ul>
       </div>
 
@@ -37,6 +95,45 @@
     </div>
   </div>
 </footer>
+
+<!-- Modal SEO: palavras-chave usadas para posicionamento no Google -->
+<div
+  id="seo-modal"
+  class="fixed inset-0 z-50 items-center justify-center p-4"
+  style="display:none"
+  role="dialog"
+  aria-modal="true"
+  aria-labelledby="seo-modal-title"
+  onclick="if(event.target===this) this.style.display='none'"
+>
+  <div class="absolute inset-0 bg-black/60"></div>
+  <div class="relative bg-white rounded-2xl shadow-2xl max-w-3xl w-full max-h-[80vh] flex flex-col">
+    <div class="flex items-center justify-between p-6 border-b border-gray-100">
+      <h3 id="seo-modal-title" class="font-display text-xl font-bold text-verde">SEO</h3>
+      <button
+        onclick="document.getElementById('seo-modal').style.display='none'"
+        class="text-gray-400 hover:text-gray-700 text-2xl leading-none cursor-pointer"
+        aria-label="Fechar"
+      >&times;</button>
+    </div>
+    <div class="overflow-y-auto p-6">
+      <div class="flex flex-wrap gap-2">
+        {seoKeywords.map((k) => (
+          <span class="bg-creme text-verde text-xs px-3 py-1.5 rounded-full border border-dourado/20">{k}</span>
+        ))}
+      </div>
+    </div>
+  </div>
+</div>
+
+<script>
+  document.addEventListener('keydown', (e) => {
+    if (e.key === 'Escape') {
+      const modal = document.getElementById('seo-modal')
+      if (modal) modal.style.display = 'none'
+    }
+  })
+</script>
 
 <script>
   import { db } from '../../lib/supabase.js'

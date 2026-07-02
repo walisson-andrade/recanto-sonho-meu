@@ -43,18 +43,22 @@
     }
 
     container.innerHTML = perguntas.map((faq, i) => `
-      <details class="group bg-white rounded-xl border border-gray-100 overflow-hidden">
+      <details class="faq-item group bg-white rounded-xl border border-gray-100 overflow-hidden">
         <summary class="flex items-center justify-between p-4 cursor-pointer hover:bg-gray-50 transition-colors">
           <span class="font-medium text-verde text-left">${esc(faq.pergunta)}</span>
           <svg class="w-5 h-5 text-gray-400 group-open:rotate-180 transition-transform flex-shrink-0 ml-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"/>
           </svg>
         </summary>
-        <div class="px-4 pb-4 text-gray-600 text-sm leading-relaxed border-t border-gray-50 pt-3">
-          ${esc(faq.resposta)}
+        <div class="faq-answer">
+          <div class="px-4 pb-4 text-gray-600 text-sm leading-relaxed border-t border-gray-50 pt-3">
+            ${esc(faq.resposta)}
+          </div>
         </div>
       </details>
     `).join('')
+    window.observeFadeInStagger?.(container, '.faq-item', 60)
+    setupFaqAnimations(container)
 
     // JSON-LD para SEO
     const schema = {
@@ -70,6 +74,63 @@
       }))
     }
     document.getElementById('faq-schema').textContent = JSON.stringify(schema)
+  }
+
+  // Expansão/recolhimento suave do acordeon (details/summary não anima altura nativamente)
+  function setupFaqAnimations(container) {
+    const reducedMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches
+    if (reducedMotion) return
+
+    container.querySelectorAll('.faq-item').forEach((details) => {
+      const summary = details.querySelector('summary')
+      const answer = details.querySelector('.faq-answer')
+      let animation = null
+      let closing = false
+      let expanding = false
+
+      summary.addEventListener('click', (e) => {
+        e.preventDefault()
+        details.style.overflow = 'hidden'
+        if (closing || !details.open) {
+          openItem()
+        } else if (expanding || details.open) {
+          shrinkItem()
+        }
+      })
+
+      function shrinkItem() {
+        closing = true
+        const startHeight = `${details.offsetHeight}px`
+        const endHeight = `${summary.offsetHeight}px`
+        animation?.cancel()
+        animation = details.animate({ height: [startHeight, endHeight] }, { duration: 220, easing: 'ease-out' })
+        animation.onfinish = () => onFinish(false)
+      }
+
+      function openItem() {
+        details.style.height = `${details.offsetHeight}px`
+        details.open = true
+        requestAnimationFrame(() => expandItem())
+      }
+
+      function expandItem() {
+        expanding = true
+        const startHeight = `${details.offsetHeight}px`
+        const endHeight = `${summary.offsetHeight + answer.offsetHeight}px`
+        animation?.cancel()
+        animation = details.animate({ height: [startHeight, endHeight] }, { duration: 220, easing: 'ease-out' })
+        animation.onfinish = () => onFinish(true)
+      }
+
+      function onFinish(open) {
+        details.open = open
+        details.style.height = ''
+        details.style.overflow = ''
+        animation = null
+        closing = false
+        expanding = false
+      }
+    })
   }
 
   init()
