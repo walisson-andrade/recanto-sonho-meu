@@ -3,7 +3,7 @@
     <div class="grid md:grid-cols-2 gap-12 items-center fade-in">
       <!-- Visual placeholder -->
       <div class="relative">
-        <div class="aspect-[4/3] bg-gradient-to-br from-verde/10 to-dourado/10 rounded-2xl flex items-center justify-center border-2 border-dashed border-dourado/30">
+        <div id="sobre-foto" class="aspect-[4/3] bg-gradient-to-br from-verde/10 to-dourado/10 rounded-2xl flex items-center justify-center border-2 border-dashed border-dourado/30 overflow-hidden">
           <div class="text-center p-8">
             <div class="text-6xl mb-4">🏡</div>
             <p class="text-gray-400 text-sm">Foto do espaço</p>
@@ -52,3 +52,22 @@
     </div>
   </div>
 </section>
+
+<script>
+  import { db } from '../../lib/supabase.js'
+  import { esc } from '../../lib/helpers.js'
+
+  async function carregarFotoCapa() {
+    try {
+      const fotos = await db.fotos.listarPublico()
+      if (!fotos || fotos.length === 0) return
+
+      const capa = fotos.find(f => f.categoria === 'geral') || fotos[0]
+      const box = document.getElementById('sobre-foto')
+      box.classList.remove('border-2', 'border-dashed', 'border-dourado/30', 'bg-gradient-to-br', 'from-verde/10', 'to-dourado/10')
+      box.innerHTML = `<img src="${esc(capa.url)}" alt="${esc(capa.legenda) || 'Foto do espaço'}" class="w-full h-full object-cover" loading="lazy" />`
+    } catch {}
+  }
+
+  carregarFotoCapa()
+</script>
